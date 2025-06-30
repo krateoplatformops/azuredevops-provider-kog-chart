@@ -1,0 +1,21 @@
+{{- if .Values.restdefinitions.pipelinepermission.enabled }}
+kind: RestDefinition
+apiVersion: swaggergen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-pipelinepermission
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-pipelinepermission/pipelinepermission.yaml
+  resourceGroup: azuredevops.kog.krateo.io
+  resource: 
+    kind: PipelinePermission
+    verbsDescription:
+    - action: create
+      method: PATCH
+      path: /{organization}/{project}/_apis/pipelines/pipelinepermissions/{resourceType}/{resourceId}
+    - action: get
+      method: GET
+      path: /api/{organization}/{project}/pipelines/pipelinepermissions/{resourceType}/{resourceId}
+    - action: update
+      method: PATCH
+      path: /{organization}/{project}/_apis/pipelines/pipelinepermissions/{resourceType}/{resourceId}
+{{ end }}
