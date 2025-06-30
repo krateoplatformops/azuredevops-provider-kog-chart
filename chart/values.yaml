@@ -115,6 +115,9 @@ readinessProbe:
   timeoutSeconds: 5
   periodSeconds: 5
 
+plugin:
+  suffix: "plugin"
+
 restdefinitions:
   pipelinepermission:
     enabled: true

@@ -1,7 +1,7 @@
-# Azure DevOps Provider Helm Chart
+# Azure DevOps Provider KOG Helm Chart
 
-This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo Azure DevOps Provider leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider).
-This provider allows you to manage Azure DevOps resources such as `pipelinepermissions`, `pipelines` and `gitrepositories` using the Krateo platform.
+This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo Azure DevOps Provider KOG leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider).
+This provider allows you to manage [Azure DevOps resources](https://azure.microsoft.com/en-us/products/devops) such as `pipelinepermissions`, `pipelines` and `gitrepositories` using the Krateo platform.
 
 > [!NOTE]  
 > This chart is still in development and not yet ready for production use.
@@ -11,9 +11,16 @@ This provider allows you to manage Azure DevOps resources such as `pipelinepermi
 - [Summary](#summary)
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
+- [Use in parallel with Azure DevOps Provider (classic)](#use-in-parallel-with-azure-devops-provider-classic)
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
     - [PipelinePermission](#pipelinepermission)
+      - [Operations](#operations)
+        - [Create](#create)
+        - [Update](#update)
+        - [Delete](#delete)
+      - [Example](#example)
+      - [How to revoke permissions](#how-to-revoke-permissions)
       - [Changes in the OpenAPI Specification](#changes-in-the-openapi-specification)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
@@ -50,16 +57,31 @@ kubectl wait deployments azuredevops-provider-kog-<RESOURCE>-controller --for co
 
 Make sure to replace `<RESOURCE>` to one of the resources supported by the chart, such as `pipelinepermission`, `pipeline`, `gitrepository`, and `<YOUR_NAMESPACE>` with the namespace where you installed the chart.
 
+## Use "in parallel" with Azure DevOps Provider (classic)
+
+This chart can be used in parallel with the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider)
+As a matter of fact, currently, this chart allows you to manage the following resources:
+- `PipelinePermission`
+
+Other resources (`TeamProject`, `Queue`, `Environment`, etc.) can be managed using the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) and referenced by the resources managed by this chart.
+For example, you can create a `PipelinePermission` resource that references a `Pipeline` resource created by the Azure DevOps Provider (classic).
+> [!NOTE]  
+> These references are "by id" and not Kubernetes-native, meaning that the `PipelinePermission` resource will reference the Azure DevOps pipeline by its ID, not by a Kubernetes resource name and namespace. Said ID can be found in the Status field of the `Pipeline` resource created by the Azure DevOps Provider (classic).
+
+
 ## Supported resources
 
 This chart supports the following resources and operations:
 
 | Resource           | Get  | Create | Update | Delete |
 |--------------------|------|--------|--------|--------|
-| PipelinePermission | ✅   | ✅     | ✅     | 🚫 Not supported    |
+| PipelinePermission | ✅   | ✅     | 🟡     | 🚫 Not supported    |
 
 > [!NOTE]  
 > 🚫 *"Not supported"* means that the operation is not supported by the resource (e.g., the underlying REST API does not support it and therefore the controller does not implement it) while 🚫 *"Not applicable"* means that the operation does not apply to the resource.
+
+> [!NOTE]  
+> 🟡 *"Partial"* means that the operation is only partially supported — for example, only some fields are implemented.
 
 The resources listed above are Custom Resources (CRs) defined in the `azuredevops.kog.krateo.io` API group. They are used to manage Azure DevOps resources in a Kubernetes-native way, allowing you to create, update, and delete Azure DevOps resources using Kubernetes manifests.
 
@@ -70,12 +92,49 @@ These examples Custom Resources (CRs) show every possible field that can be set 
 
 #### PipelinePermission
 
-The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines. It allows you to set permissions for a specific pipeline.
+The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
+
+##### Operations
+
+- **Create**: You can create a `PipelinePermission` resource to grant permissions for specific pipelines to use a specific resource, such as `environment`, `queue`, etc.
+- **Update**: Updating is only partially supported, meaning that you cannot directly revoke permissions (change the `authorized` field to `false`) for existing pipelines (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines). You can only add new pipelines with `authorized: true`. You can also change permissions for all pipelines in the project by setting the `allPipelines` field to `authorized: true` or `authorized: false`.
+- **Delete**: Deleting a `PipelinePermission` custom resource will not revoke permissions for the pipelines, it will only remove the resource from the cluster and the controller will stop managing it. The Azure DevOps pipelines will still have the permissions granted by the `PipelinePermission` resource until you manually revoke them in the Azure DevOps UI.
+
+##### Example
 
 An example of a PipelinePermission resource is:
 ```yaml
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: PipelinePermission
+metadata:
+  name: test-pp
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth
+  api-version: 7.2-preview.1
+  
+  organization: "krateo-kog"
+  project: "test-project-1-classic"
+  resourceType: "environment" 
+  resourceId: "7"
 
+  allPipelines:
+    authorized: false
+
+  pipelines:
+    - id: 14
+      # authorized: true is not required, since it is the default value (authorized: false is not allowed)
+    - id: 15
 ```
+
+##### How to revoke permissions
+
+To revoke permissions for a pipeline, you need to:
+1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
+2. Update the `PipelinePermission` resource by removing the specific pipeline from the `pipelines` array in the `PipelinePermission` resource. 
 
 ##### Changes in the OpenAPI Specification
 
@@ -159,14 +218,14 @@ This will enable verbose logging for those specific resources, which can be usef
 
 Main components of the chart:
 
-- **RestDefinitions**: These are the core resources needed to manage resources leveraging the Krateo OASGen Provider. In this case, they refers to the OpenAPI Specification to be used for the creation of the Custom Resources (CRs) that represent GitHub resources.
+- **RestDefinitions**: These are the core resources needed to manage resources leveraging the Krateo OASGen Provider. In this case, they refers to the OpenAPI Specification to be used for the creation of the Custom Resources (CRs) that represent Azure DevOps resources.
 They also define the operations that can be performed on those resources. Once the chart is installed, RestDefinitions will be created and as a result, specific controllers will be deployed in the cluster to manage the resources defined with those RestDefinitions.
 
 - **ConfigMaps**: Refer directly to the OpenAPI Specification content in the `/assets` folder.
 
-- **/assets** folder: Contains the selected OpenAPI Specification files for the GitHub REST API.
+- **/assets** folder: Contains the selected OpenAPI Specification files for the Azure DevOps REST API.
 
-- **/samples** folder: Contains example resources for each supported resource type as seen in this README. These examples demonstrate how to create and manage GitHub resources using the Krateo GitHub Provider.
+- **/samples** folder: Contains example resources for each supported resource type as seen in this README. These examples demonstrate how to create and manage Azure DevOps resources using the Krateo Azure DevOps Provider KOG.
 
 - **Deployment**: Deploys a [plugin](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin) that is used as a proxy to resolve some inconsistencies of the Azure DevOps REST API. The specific endpoins managed by the plugin are described in the [plugin README](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin/blob/main/README.md)
 

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "azuredevops-provider-kog.fullname" . }}
+  name: {{ include "azuredevops-provider-kog.fullname" . }}-{{ .Values.plugin.suffix | default "plugin" }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "azuredevops-provider-kog.labels" . | nindent 4 }}
