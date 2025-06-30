@@ -1,0 +1,25 @@
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: PipelinePermission
+metadata:
+  name: test-pp-agentpool
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth
+  api-version: 7.2-preview.1
+  
+  organization: "krateo-kog"
+  project: "test-project-1"
+  resourceType: "queue" 
+  resourceId: "38"
+
+  allPipelines:
+    authorized: false
+  pipelines:
+    - id: 6
+      authorized: true
+    - id: 4
+      authorized: true
+

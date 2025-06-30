@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: to_be_defined
-  pullPolicy: IfNotPresent
+  repository: leovice/azuredevops-plugin
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "dev"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -16,7 +16,7 @@ fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
-  create: true
+  create: false
   # Automatically mount a ServiceAccount's API credentials?
   automount: true
   # Annotations to add to the service account
@@ -41,7 +41,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 ingress:
   enabled: false
@@ -99,23 +99,26 @@ affinity: {}
 
 env: []
 
-#livenessProbe:
-#  httpGet:
-#    path: /healthz
-#    port: 8080
-#  initialDelaySeconds: 30
-#  timeoutSeconds: 5
-#  periodSeconds: 10
-#
-#readinessProbe:
-#  httpGet:
-#    path: /readyz
-#    port: 8080
-#  initialDelaySeconds: 5
-#  timeoutSeconds: 5
-#  periodSeconds: 5
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
 
-#restdefinitions:
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8080
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  periodSeconds: 5
+
+restdefinitions:
+  pipelinepermission:
+    enabled: true
+
 #  pipeline:
 #    enabled: true
 #    version: 7.1

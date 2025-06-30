@@ -1,0 +1,325 @@
+openapi: 3.0.1
+info:
+  title: PipelinePermissions
+  description: ""
+  termsOfService: https://go.microsoft.com/fwlink/?LinkId=329770
+  contact:
+    name: nugetvss
+    email: nugetvss@microsoft.com
+  license:
+    name: MICROSOFT SOFTWARE LICENSE TERMS
+    url: https://go.microsoft.com/fwlink/?LinkId=329770
+  version: 7.2-preview
+externalDocs:
+  description: Azure DevOps REST APIs
+  url: https://aka.ms/azure-devops-rest-apis
+servers:
+- url: https://dev.azure.com/
+security:
+- accessToken: []
+tags:
+- name: Pipeline Permissions
+paths:
+  /api/{organization}/{project}/pipelines/pipelinepermissions/{resourceType}/{resourceId}:
+    get:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URl of the Azure DevOps RDC plugin
+      summary: Get the pipeline permission of a resource
+      description: Get
+      operationId: get-pipelinepermission
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: project
+          in: path
+          description: Project name
+          required: true
+          schema:
+            type: string
+        - name: resourceType
+          in: path
+          description: Resource type (e.g., pipelines, repositories)
+          required: true
+          schema:
+            type: string
+        - name: resourceId
+          in: path
+          description: Resource ID (e.g., pipeline ID, repository ID)
+          required: true
+          schema:
+            type: string
+        - name: api-version
+          in: query
+          description: API version (e.g., 7.2-preview.1)
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header (Basic <base64-encoded-username:password>)
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pipeline permission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePipelinePermissions'
+  /{organization}/{project}/_apis/pipelines/pipelinepermissions/{resourceType}/{resourceId}:
+    patch:
+      tags:
+      - Pipeline Permissions
+      description: Authorizes/Unauthorizes a list of definitions for a given resource.
+      operationId: Pipeline Permissions_Update Pipeline Permisions For Resource
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+        default: testingDefault
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+      - name: resourceType
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: resourceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.1'
+          to use this version of the api.
+        required: true
+        default: 7.2-preview.1
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePipelinePermissionsTrueOnly'
+        required: true
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourcePipelinePermissions'
+      security:
+      - oauth2:
+        - vso.pipelineresources_manage
+      x-ms-docs-override-version: 7.2-preview.1
+      x-ms-vss-resource: pipelinePermissions
+      x-ms-vss-method: UpdatePipelinePermisionsForResource
+      x-ms-preview: true
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    GraphSubjectBase:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        descriptor:
+          type: string
+          description: The descriptor is the primary way to reference the graph subject
+            while the system is running. This field will uniquely identify the same
+            graph subject across both Accounts and Organizations.
+        displayName:
+          type: string
+          description: "This is the non-unique display name of the graph subject.\
+            \ To change this field, you must alter its value in the source provider."
+        url:
+          type: string
+          description: This url is the full route to the source resource of this graph
+            subject.
+      description: ""
+    IdentityRef:
+      properties:
+        directoryAlias:
+          type: string
+          description: Deprecated - Can be retrieved by querying the Graph user referenced
+            in the "self" entry of the IdentityRef "_links" dictionary
+        id:
+          type: string
+        imageUrl:
+          type: string
+          description: Deprecated - Available in the "avatar" entry of the IdentityRef
+            "_links" dictionary
+        inactive:
+          type: boolean
+          description: Deprecated - Can be retrieved by querying the Graph membership
+            state referenced in the "membershipState" entry of the GraphUser "_links"
+            dictionary
+        isAadIdentity:
+          type: boolean
+          description: Deprecated - Can be inferred from the subject type of the descriptor
+            (Descriptor.IsAadUserType/Descriptor.IsAadGroupType)
+        isContainer:
+          type: boolean
+          description: Deprecated - Can be inferred from the subject type of the descriptor
+            (Descriptor.IsGroupType)
+        isDeletedInOrigin:
+          type: boolean
+        profileUrl:
+          type: string
+          description: Deprecated - not in use in most preexisting implementations
+            of ToIdentityRef
+        uniqueName:
+          type: string
+          description: Deprecated - use Domain+PrincipalName instead
+      description: ""
+      allOf:
+      - $ref: '#/components/schemas/GraphSubjectBase'
+    Permission:
+      type: object
+      properties:
+        authorized:
+          type: boolean
+        authorizedBy:
+          $ref: '#/components/schemas/IdentityRef'
+        authorizedOn:
+          type: string
+          format: date-time
+      description: ""
+    PermissionTrueOnly:
+      type: object
+      properties:
+        authorized:
+          type: boolean
+          enum:
+          - true # Only true allowed in the CR
+          default: true
+        authorizedBy:
+          $ref: '#/components/schemas/IdentityRef'
+        authorizedOn:
+          type: string
+          format: date-time
+      description: "Schema for a permission that only allows true.  This is used to force a permission to be true in the CR."
+    PipelinePermission:
+      properties:
+        id:
+          type: integer
+          format: int32
+      description: ""
+      allOf:
+      - $ref: '#/components/schemas/Permission'
+    PipelinePermissionTrueOnly:
+      properties:
+        id:
+          type: integer
+          format: int32
+      description: ""
+      allOf:
+      - $ref: '#/components/schemas/PermissionTrueOnly'
+    PipelineProcessResources:
+      type: object
+      properties:
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelineResourceReference'
+      description: ""
+    PipelineResourceReference:
+      type: object
+      properties:
+        authorized:
+          type: boolean
+        authorizedBy:
+          type: string
+          format: uuid
+        authorizedOn:
+          type: string
+          format: date-time
+        definitionId:
+          type: integer
+          format: int32
+        id:
+          type: string
+        type:
+          type: string
+      description: ""
+    ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: "The readonly view of the links.  Because Reference links are\
+            \ readonly, we only want to expose them as read only."
+      description: The class to represent a collection of REST reference links.
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id of the resource.
+        name:
+          type: string
+          description: Name of the resource.
+        type:
+          type: string
+          description: Type of the resource.
+      description: ""
+    ResourcePipelinePermissions:
+      type: object
+      properties:
+        allPipelines:
+          $ref: '#/components/schemas/Permission'
+        pipelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelinePermission'
+        resource:
+          $ref: '#/components/schemas/Resource'
+      description: ""
+    ResourcePipelinePermissionsTrueOnly:
+      type: object
+      properties:
+        allPipelines:
+          $ref: '#/components/schemas/Permission'
+        pipelines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PipelinePermissionTrueOnly'
+        resource:
+          $ref: '#/components/schemas/Resource'
+      description: ""
+  parameters:
+    api-Version-preview.1:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.1'
+        to use this version of the api.
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    accessToken:
+      type: http
+      description: Personal access token. Use any value for the user name and the
+        token as the password.
+      scheme: basic
+x-ms-vss-area: pipelinePermissions
+x-ms-vss-resource-area-id: a81a0441-de52-4000-aa15-ff0e07bfbbaa
+x-original-swagger-version: "2.0"

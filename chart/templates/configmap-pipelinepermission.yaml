@@ -1,0 +1,9 @@
+{{- if .Values.restdefinitions.pipelinepermission.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pipelinepermission
+data:
+  pipelinepermission.yaml: |
+{{ tpl (.Files.Get "assets/pipelinepermission.yaml") . | indent 4 }}
+{{ end }}
