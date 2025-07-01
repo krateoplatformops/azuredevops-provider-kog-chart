@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: leovice/azuredevops-plugin
-  pullPolicy: Always
+  repository: ghcr.io/krateoplatformops/azuredevops-rest-dynamic-controller-plugin
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "dev"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
