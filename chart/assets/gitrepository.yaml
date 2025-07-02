@@ -1,0 +1,545 @@
+openapi: 3.0.1
+info:
+  title: Git
+  description: ""
+  termsOfService: https://go.microsoft.com/fwlink/?LinkId=329770
+  contact:
+    name: nugetvss
+    email: nugetvss@microsoft.com
+  license:
+    name: MICROSOFT SOFTWARE LICENSE TERMS
+    url: https://go.microsoft.com/fwlink/?LinkId=329770
+  version: 7.2-preview
+externalDocs:
+  description: Azure DevOps REST APIs
+  url: https://aka.ms/azure-devops-rest-apis
+servers:
+- url: https://dev.azure.com/
+security:
+- accessToken: []
+tags:
+- name: Repositories
+  description: Controller to handle all REST calls against Git Repositories
+paths:
+  /{organization}/{projectId}/_apis/git/repositories:
+    get:
+      tags:
+      - Repositories
+      description: Retrieve git repositories.
+      operationId: Repositories_List
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      #- name: includeLinks
+      #  in: query
+      #  description: "[optional] True to include reference links. The default value\
+      #    \ is false."
+      #  schema:
+      #    type: boolean
+      #- name: includeAllUrls
+      #  in: query
+      #  description: "[optional] True to include all remote URLs. The default value\
+      #    \ is false."
+      #  schema:
+      #    type: boolean
+      #- name: includeHidden
+      #  in: query
+      #  description: "[optional] True to include hidden repositories. The default\
+      #    \ value is false."
+      #  schema:
+      #    type: boolean
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitRepository'
+      security:
+      - oauth2:
+        - vso.code
+      x-ms-docs-override-version: 7.2-preview.2
+      x-ms-vss-resource: repositories
+      x-ms-vss-method: GetRepositories
+      x-ms-preview: true
+    post:
+      tags:
+      - Repositories
+      description: Create a git repository in a team project.
+      operationId: Repositories_Create
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: sourceRef
+        in: query
+        description: "[optional] Specify the source refs to use while creating a fork\
+          \ repo"
+        schema:
+          type: string
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: "Specify the repo name, team project and/or parent repository.\
+          \ Team project information can be omitted from gitRepositoryToCreate if\
+          \ the request is project-scoped (i.e., includes project Id)."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitRepositoryCreateOptionsMinimal'
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitRepository'
+      security:
+      - oauth2:
+        - vso.code_manage
+      x-ms-docs-override-version: 7.2-preview.2
+      x-ms-vss-resource: repositories
+      x-ms-vss-method: CreateRepository
+      x-ms-preview: true
+      x-codegen-request-body-name: body
+  /{organization}/{projectId}/_apis/git/repositories/{id}:
+    get:
+      tags:
+      - Repositories
+      description: Retrieve a git repository.
+      operationId: Repositories_Get Repository
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: The name or ID of the repository.
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitRepository'
+      security:
+      - oauth2:
+        - vso.code
+      x-ms-docs-override-version: 7.2-preview.2
+      x-ms-vss-resource: repositories
+      x-ms-vss-method: GetRepository
+      x-ms-preview: true
+    delete:
+      tags:
+      - Repositories
+      description: Delete a git repository
+      operationId: Repositories_Delete
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: The ID of the repository.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: projectId
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: successful operation
+          content: {}
+      security:
+      - oauth2:
+        - vso.code_manage
+      x-ms-docs-override-version: 7.2-preview.2
+      x-ms-vss-resource: repositories
+      x-ms-vss-method: DeleteRepository
+      x-ms-preview: true
+    patch:
+      tags:
+      - Repositories
+      description: Updates the Git repository with either a new repo name or a new
+        default branch.
+      operationId: Repositories_Update
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: The ID of the repository.
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: projectId
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Specify a new repo name or a new default branch of the repository
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitRepositoryUpdateOptions'
+        required: true
+      responses:
+        "200":
+          description: The operation succeeded. The response contains the updated
+            repository information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitRepository'
+      security:
+      - oauth2:
+        - vso.code_manage
+      x-ms-docs-override-version: 7.2-preview.2
+      x-ms-vss-resource: repositories
+      x-ms-vss-method: UpdateRepository
+      x-ms-preview: true
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    GitRepository: # For response body
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        creationDate:
+          type: string
+          description: The timestamp when the repository was created.
+          format: date-time
+        defaultBranch:
+          type: string
+        id:
+          type: string
+          format: uuid
+        isDisabled:
+          type: boolean
+          description: True if the repository is disabled. False otherwise.
+        isFork:
+          type: boolean
+          description: True if the repository was created as a fork.
+        isInMaintenance:
+          type: boolean
+          description: True if the repository is in maintenance. False otherwise.
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/GitRepositoryRef'
+        project:
+          $ref: '#/components/schemas/TeamProjectReference'
+        remoteUrl:
+          type: string
+        size:
+          type: integer
+          description: Compressed size (bytes) of the repository.
+          format: int64
+        sshUrl:
+          type: string
+        url:
+          type: string
+        validRemoteUrls:
+          type: array
+          items:
+            type: string
+        webUrl:
+          type: string
+      description: ""
+    GitRepositoryCreateOptionsMinimal: # For request body of POST
+      type: object
+      properties:
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/GitRepositoryRefMinimal'
+        project:
+          $ref: '#/components/schemas/TeamProjectReferenceMinimal'
+      description: ""
+    GitRepositoryCreateOptions:
+      type: object
+      properties:
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/GitRepositoryRef'
+        project:
+          $ref: '#/components/schemas/TeamProjectReference'
+      description: ""
+    GitRepositoryRef:
+      type: object
+      properties:
+        collection:
+          $ref: '#/components/schemas/TeamProjectCollectionReference'
+        id:
+          type: string
+          format: uuid
+        isFork:
+          type: boolean
+          description: True if the repository was created as a fork
+        name:
+          type: string
+        project:
+          $ref: '#/components/schemas/TeamProjectReference'
+        remoteUrl:
+          type: string
+        sshUrl:
+          type: string
+        url:
+          type: string
+      description: ""   
+    GitRepositoryRefMinimal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project:
+          $ref: '#/components/schemas/TeamProjectReferenceMinimal'
+      description: "A minimal reference to a Git repository, containing only the repository ID and project reference."
+    GitRepositoryUpdateOptions: # For request body of PATCH
+      type: object
+      properties:
+        name:
+          type: string
+        #defaultBranch: # to understand how to handle this field since it is not present in the CREATE operation
+        #  type: string
+      description: "Options for updating a Git repository (e.g., changing the\
+        \ name or default branch)."
+    ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: "The readonly view of the links.  Because Reference links are\
+            \ readonly, we only want to expose them as read only."
+      description: The class to represent a collection of REST reference links.
+    TeamProjectCollectionReference:
+      type: object
+      properties:
+        avatarUrl:
+          type: string
+          description: Collection avatar Url.
+        id:
+          type: string
+          description: Collection Id.
+          format: uuid
+        name:
+          type: string
+          description: Collection Name.
+        url:
+          type: string
+          description: Collection REST Url.
+      description: Reference object for a TeamProjectCollection.
+    TeamProjectReference:
+      type: object
+      properties:
+        abbreviation:
+          type: string
+          description: Project abbreviation.
+        defaultTeamImageUrl:
+          type: string
+          description: Url to default team identity image.
+        description:
+          type: string
+          description: The project's description (if any).
+        id:
+          type: string
+          description: Project identifier.
+          format: uuid
+        lastUpdateTime:
+          type: string
+          description: Project last update time.
+          format: date-time
+        name:
+          type: string
+          description: Project name.
+        revision:
+          type: integer
+          description: Project revision.
+          format: int64
+        state:
+          type: string
+          description: Project state.
+          enum:
+          - deleting
+          - new
+          - wellFormed
+          - createPending
+          - all
+          - unchanged
+          - deleted
+          x-ms-enum:
+            name: ProjectState
+            values:
+            - value: deleting
+              description: Project is in the process of being deleted.
+            - value: new
+              description: Project is in the process of being created.
+            - value: wellFormed
+              description: Project is completely created and ready to use.
+            - value: createPending
+              description: "Project has been queued for creation, but the process\
+                \ has not yet started."
+            - value: all
+              description: All projects regardless of state except Deleted.
+            - value: unchanged
+              description: Project has not been changed.
+            - value: deleted
+              description: Project has been deleted.
+        url:
+          type: string
+          description: Url to the full version of the object.
+        visibility:
+          type: string
+          description: Project visibility.
+          enum:
+          - private
+          - public
+          x-ms-enum:
+            name: ProjectVisibility
+            values:
+            - value: private
+              description: The project is only visible to users with explicit access.
+            - value: public
+              description: The project is visible to all.
+      description: Represents a shallow reference to a TeamProject.
+    TeamProjectReferenceMinimal:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Project identifier.
+          format: uuid
+      description: Represents a minimal reference to a TeamProject, containing only the project ID.
+  parameters:
+    api-Version-preview.1:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.1'
+        to use this version of the api.
+      required: true
+      schema:
+        type: string
+    api-Version-preview.2:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.2'
+        to use this version of the api.
+      required: true
+      schema:
+        type: string
+    api-Version-preview.3:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.3'
+        to use this version of the api.
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    accessToken:
+      type: http
+      description: Personal access token. Use any value for the user name and the
+        token as the password.
+      scheme: basic
+
+x-ms-vss-area: Git
+x-ms-vss-resource-area-id: 4e080c62-fa21-4fbc-8fef-2a10a2b38049
+x-original-swagger-version: "2.0"

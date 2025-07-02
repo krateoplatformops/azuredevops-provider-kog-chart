@@ -136,7 +136,7 @@ To revoke permissions for a pipeline, you need to:
 1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
 2. Update the `PipelinePermission` resource by removing the specific pipeline from the `pipelines` array in the `PipelinePermission` resource. 
 
-##### Changes in the OpenAPI Specification
+##### Main changes w.r.t. original OpenAPI Specification
 
 Since the Azure DevOps REST API returns only the pipelines that are authorized for the user, the `PipelinePermission` resource allows you to set the `authorized` field of each `pipeline` in the `pipelines` array to `true` only.
 Therefore, the OpenAPI Specification (OAS) of the `PipelinePermission` resource has been modified to restrict the `authorized` field to only accept `true` and set it as the default value.
@@ -156,6 +156,53 @@ The PATCH operation is used in the RestDefinition `pipelinepermission` for the `
 +       - true          # Only true allowed in the CR
 +       default: true   # Default value is true
 ```
+
+#### GitRepository
+
+##### Fork-related fields
+
+https://learn.microsoft.com/en-us/rest/api/azure/devops/git/repositories/create?view=azure-devops-rest-7.2&tabs=HTTP#create-a-fork-of-a-parent-repository
+
+##### Main changes w.r.t. original OpenAPI Specification
+
+
+changed id in path of the GET /{organization}/{project}/_apis/git/repositories/{repositoryId}
+`repositoryId` to `id`
+
+---
+changed `project` to `projectId` in path
+
+otherwise there is a
+clash between project in path and project in response body
+
+note that projectId could be either a project name or a project ID,
+---
+
+removed project field of request body OAS of POST
+ not needed since the project is already defined in the path and we do not want to give the possbility to change fields related to the project in the request body.
+(created schema for request body, without project field)
+
+---
+
+
+in the 
+delete endpoint
+
+/{organization}/{projectId}/_apis/git/repositories/{id}
+
+changed from 200 to 
+      responses:
+        "204":
+
+as 204 is the status code that is actually returned by the Azure DevOps REST API when a repository is deleted successfully.
+
+---
+added new schemas
+
+schema `GitRepositoryUpdateOptions` to allow updating the name and default branch of a Git repository.
+therfore only a subset of the original
+
+
 
 ## Authentication
 
