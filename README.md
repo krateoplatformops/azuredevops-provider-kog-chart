@@ -16,9 +16,6 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
   - [Resource details](#resource-details)
     - [PipelinePermission](#pipelinepermission)
       - [Operations](#operations)
-        - [Create](#create)
-        - [Update](#update)
-        - [Delete](#delete)
       - [Example](#example)
       - [How to revoke permissions](#how-to-revoke-permissions)
       - [Changes in the OpenAPI Specification](#changes-in-the-openapi-specification)
@@ -59,15 +56,14 @@ Make sure to replace `<RESOURCE>` to one of the resources supported by the chart
 
 ## Use "in parallel" with Azure DevOps Provider (classic)
 
-This chart can be used in parallel with the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider)
+This chart can be used in parallel with the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider).
 As a matter of fact, currently, this chart allows you to manage the following resources:
 - `PipelinePermission`
 
 Other resources (`TeamProject`, `Queue`, `Environment`, etc.) can be managed using the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) and referenced by the resources managed by this chart.
 For example, you can create a `PipelinePermission` resource that references a `Pipeline` resource created by the Azure DevOps Provider (classic).
 > [!NOTE]  
-> These references are "by id" and not Kubernetes-native, meaning that the `PipelinePermission` resource will reference the Azure DevOps pipeline by its ID, not by a Kubernetes resource name and namespace. Said ID can be found in the Status field of the `Pipeline` resource created by the Azure DevOps Provider (classic).
-
+> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the Azure DevOps pipeline by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the Status field of the `Pipeline` resource created by the Azure DevOps Provider (classic).
 
 ## Supported resources
 
@@ -76,6 +72,7 @@ This chart supports the following resources and operations:
 | Resource           | Get  | Create | Update | Delete |
 |--------------------|------|--------|--------|--------|
 | PipelinePermission | ✅   | ✅     | 🟡     | 🚫 Not supported    |
+| GitRepository      | ✅   | ✅     | 🟡     | ✅     |
 
 > [!NOTE]  
 > 🚫 *"Not supported"* means that the operation is not supported by the resource (e.g., the underlying REST API does not support it and therefore the controller does not implement it) while 🚫 *"Not applicable"* means that the operation does not apply to the resource.
@@ -170,22 +167,17 @@ changed id in path of the GET /{organization}/{project}/_apis/git/repositories/{
 `repositoryId` to `id`
 
 ---
-changed `project` to `projectId` in path
+changed `project` to `projectId` for the path parameter.
 
 otherwise there is a
 clash between project in path and project in response body
 
 note that projectId could be either a project name or a project ID,
----
-
-removed project field of request body OAS of POST
- not needed since the project is already defined in the path and we do not want to give the possbility to change fields related to the project in the request body.
-(created schema for request body, without project field)
 
 ---
 
 
-in the 
+In the 
 delete endpoint
 
 /{organization}/{projectId}/_apis/git/repositories/{id}
@@ -201,6 +193,10 @@ added new schemas
 
 schema `GitRepositoryUpdateOptions` to allow updating the name and default branch of a Git repository.
 therfore only a subset of the original
+
+
+minimal schemas
+
 
 
 

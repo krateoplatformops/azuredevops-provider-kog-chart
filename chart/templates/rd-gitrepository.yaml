@@ -1,0 +1,32 @@
+{{- if .Values.restdefinitions.gitrepository.enabled }}
+kind: RestDefinition
+apiVersion: swaggergen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-gitrepository
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-gitrepository/gitrepository.yaml
+  resourceGroup: azuredevops.kog.krateo.io
+  resource: 
+    kind: GitRepository
+    identifiers:
+    - id
+    - remoteUrl
+    - sshUrl
+    - url
+    verbsDescription:
+    - action: create
+      method: POST
+      path: /{organization}/{projectId}/_apis/git/repositories
+    - action: findby
+      method: GET
+      path: /{organization}/{projectId}/_apis/git/repositories
+    - action: get
+      method: GET
+      path: /{organization}/{projectId}/_apis/git/repositories/{id}
+    - action: update
+      method: PATCH
+      path: /{organization}/{projectId}/_apis/git/repositories/{id}
+    - action: delete
+      method: DELETE
+      path: /{organization}/{projectId}/_apis/git/repositories/{id}
+{{ end }}
