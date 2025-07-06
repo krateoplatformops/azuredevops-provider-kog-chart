@@ -1,6 +1,7 @@
 
+## PipelinePermission
 
-
+7.2-preview.1
 
 ## GitRepository
 
