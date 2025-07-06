@@ -1,0 +1,9 @@
+{{- if .Values.restdefinitions.gitrepository.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-gitrepository
+data:
+  gitrepository.yaml: |
+{{ tpl (.Files.Get "assets/gitrepository.yaml") . | indent 4 }}
+{{ end }}

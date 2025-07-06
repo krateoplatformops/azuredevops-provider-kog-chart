@@ -15,13 +15,15 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
     - [PipelinePermission](#pipelinepermission)
-      - [Operations](#operations)
-        - [Create](#create)
-        - [Update](#update)
-        - [Delete](#delete)
-      - [Example](#example)
+      - [PipelinePermission operations](#pipelinepermission-operations)
+      - [PipelinePermission example CR](#pipelinepermission-example-cr)
       - [How to revoke permissions](#how-to-revoke-permissions)
-      - [Changes in the OpenAPI Specification](#changes-in-the-openapi-specification)
+      - [Main changes w.r.t. original OAS for `PipelinePermission`](#main-changes-wrt-original-oas-for-pipelinepermission)
+    - [GitRepository](#gitrepository)
+      - [GitRepository operations](#gitrepository-operations)
+      - [GitRepository example CR](#gitrepository-example-cr)
+      - [Fork-related fields](#fork-related-fields)
+      - [Main changes w.r.t. original OAS for `GitRepository`](#main-changes-wrt-original-oas-for-gitrepository)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
   - [values.yaml](#valuesyaml)
@@ -59,15 +61,14 @@ Make sure to replace `<RESOURCE>` to one of the resources supported by the chart
 
 ## Use "in parallel" with Azure DevOps Provider (classic)
 
-This chart can be used in parallel with the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider)
+This chart can be used in parallel with the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider).
 As a matter of fact, currently, this chart allows you to manage the following resources:
 - `PipelinePermission`
 
 Other resources (`TeamProject`, `Queue`, `Environment`, etc.) can be managed using the [Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) and referenced by the resources managed by this chart.
 For example, you can create a `PipelinePermission` resource that references a `Pipeline` resource created by the Azure DevOps Provider (classic).
 > [!NOTE]  
-> These references are "by id" and not Kubernetes-native, meaning that the `PipelinePermission` resource will reference the Azure DevOps pipeline by its ID, not by a Kubernetes resource name and namespace. Said ID can be found in the Status field of the `Pipeline` resource created by the Azure DevOps Provider (classic).
-
+> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the Azure DevOps pipeline by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the Status field of the `Pipeline` resource created by the Azure DevOps Provider (classic).
 
 ## Supported resources
 
@@ -76,6 +77,7 @@ This chart supports the following resources and operations:
 | Resource           | Get  | Create | Update | Delete |
 |--------------------|------|--------|--------|--------|
 | PipelinePermission | ✅   | ✅     | 🟡     | 🚫 Not supported    |
+| GitRepository      | ✅   | ✅     | ✅     | ✅     |
 
 > [!NOTE]  
 > 🚫 *"Not supported"* means that the operation is not supported by the resource (e.g., the underlying REST API does not support it and therefore the controller does not implement it) while 🚫 *"Not applicable"* means that the operation does not apply to the resource.
@@ -94,13 +96,13 @@ These examples Custom Resources (CRs) show every possible field that can be set 
 
 The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
 
-##### Operations
+##### PipelinePermission operations
 
 - **Create**: You can create a `PipelinePermission` resource to grant permissions for specific pipelines to use a specific resource, such as `environment`, `queue`, etc.
 - **Update**: Updating is only partially supported, meaning that you cannot directly revoke permissions (change the `authorized` field to `false`) for existing pipelines (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines). You can only add new pipelines with `authorized: true`. You can also change permissions for all pipelines in the project by setting the `allPipelines` field to `authorized: true` or `authorized: false`.
 - **Delete**: Deleting a `PipelinePermission` custom resource will not revoke permissions for the pipelines, it will only remove the resource from the cluster and the controller will stop managing it. The Azure DevOps pipelines will still have the permissions granted by the `PipelinePermission` resource until you manually revoke them in the Azure DevOps UI.
 
-##### Example
+##### PipelinePermission example CR
 
 An example of a PipelinePermission resource is:
 ```yaml
@@ -136,7 +138,7 @@ To revoke permissions for a pipeline, you need to:
 1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
 2. Update the `PipelinePermission` resource by removing the specific pipeline from the `pipelines` array in the `PipelinePermission` resource. 
 
-##### Changes in the OpenAPI Specification
+##### Main changes w.r.t. original OAS for `PipelinePermission`
 
 Since the Azure DevOps REST API returns only the pipelines that are authorized for the user, the `PipelinePermission` resource allows you to set the `authorized` field of each `pipeline` in the `pipelines` array to `true` only.
 Therefore, the OpenAPI Specification (OAS) of the `PipelinePermission` resource has been modified to restrict the `authorized` field to only accept `true` and set it as the default value.
@@ -156,6 +158,69 @@ The PATCH operation is used in the RestDefinition `pipelinepermission` for the `
 +       - true          # Only true allowed in the CR
 +       default: true   # Default value is true
 ```
+
+#### GitRepository
+
+The `GitRepository` resource is used to manage Azure DevOps GitRepositories.
+
+###### GitRepository operations
+- **Create**: You can create a new GitRepository in Azure DevOps. You can specify the name, project and organization, and other optional fields such as default branch, and whether the repository should be a fork of another repository.
+- **Update**: You can update the name and default branch of an existing GitRepository. Note that you cannot change the project or organization of an existing repository.
+- **Delete**: You can delete an existing GitRepository. This will remove the repository from Azure DevOps.
+
+##### GitRepository example CR
+An example of a GitRepository resource is:
+```yaml
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: GitRepository
+metadata:
+  name: test-gitrepository-kog
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
+  api-version: "7.2-preview.2"                    # Version of the API to use
+
+  organization: "krateo-kog"                      # name of the Azure DevOps organization
+  projectId: "test-project-1-classic"             # ID or name of the project
+
+  name: "test-gitrepository-kog-v4"               # Name of the repository to create or manage  
+  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
+  initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.
+
+  # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository
+  # These fields should be omitted if you want to create a new repository instead of forking an existing one.
+  project: 
+    id: 11790bc5-82bd-4cdc-b6a6-47bcb7187051      # ID of the project where the repository will be created
+  parentRepository:
+    id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"    # ID of the parent repository to fork
+    project:
+      id: "11790bc5-82bd-4cdc-b6a6-47bcb7187051"  # ID of the parent repository's project
+
+  #sourceRef: "refs/heads/test-branch"
+  # omitting sourceRef will copy all branches from parent 
+  # assignin a non-existing branch to sourceRef will result in an error
+
+```
+
+##### Fork-related fields
+
+You can learn more about the fork-related fields in the [Azure DevOps documentation](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/repositories/create#create-a-fork-of-a-parent-repository).
+
+##### Main changes w.r.t. original OAS for `GitRepository`
+
+The path parameter `project` has been changed to `projectId` on every endpoint that requires it.
+Otherwise there would be a potential clash between `project` field in path and `project` field in the response body that would cause issues with Rest Dynamic Controller.
+Note that `projectId` could be either a project name or a project ID even if the field is named `projectId`.
+
+The path parameter `repositoryId` has been changed to `id` on every endpoint that requires it. This is done to align with the naming convention used in response bodies.
+
+In the `delete` endpoint the response status code has been changed from `200` to `204` as the Azure DevOps REST API returns a `204 No Content` status code when a repository is deleted successfully.
+
+Some schemas were created, such as `GitRepositoryUpdateOptions`. 
+This schema is used in the `update` operation of the `GitRepository` resource to allow updating only the name and default branch of a Git repository.
 
 ## Authentication
 

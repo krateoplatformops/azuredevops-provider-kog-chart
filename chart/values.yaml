@@ -116,10 +116,12 @@ readinessProbe:
   periodSeconds: 5
 
 plugin:
-  suffix: "plugin"
+  suffix: "plugin" # This is the suffix added to the deployment name and service name of the plugin.
 
 restdefinitions:
   pipelinepermission:
+    enabled: true
+  gitrepository:
     enabled: true
 
 #  pipeline:
