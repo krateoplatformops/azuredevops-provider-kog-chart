@@ -62,5 +62,5 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "webServiceUrl" -}}
-http://{{ include "azuredevops-provider-kog.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+http://{{ include "azuredevops-provider-kog.fullname" . }}-{{ .Values.plugin.suffix | default "plugin" }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
 {{- end -}}

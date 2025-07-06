@@ -1,0 +1,30 @@
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: GitRepository
+metadata:
+  name: test-gitrepository-kog-2-2
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
+  api-version: "7.2-preview.2"                    # Version of the API to use
+
+  organization: "krateo-kog"                      # Name of the Azure DevOps organization
+  projectId: "test-project-1-classic"             # ID or name of the project
+
+  name: "test-gitrepository-kog-2-2"              # Name of the repository to create or manage  
+  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
+
+  # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository
+  # These fields should be omitted if you want to create a new repository instead of forking an existing one.
+  project: 
+    id: 11790bc5-82bd-4cdc-b6a6-47bcb7187051      # ID of the project where the repository will be created
+  parentRepository:
+    id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"    # ID of the parent repository to fork
+    project:
+      id: "11790bc5-82bd-4cdc-b6a6-47bcb7187051"  # ID of the parent repository's project
+
+  sourceRef: "refs/heads/test-branch-not-existing"
+  # omitting sourceRef will copy all branches from parent 
+  # assignin a non-existing branch to sourceRef will result in an error

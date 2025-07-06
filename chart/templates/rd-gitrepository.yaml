@@ -16,7 +16,7 @@ spec:
     verbsDescription:
     - action: create
       method: POST
-      path: /{organization}/{projectId}/_apis/git/repositories
+      path: /api/{organization}/{projectId}/git/repositories
     - action: findby
       method: GET
       path: /{organization}/{projectId}/_apis/git/repositories

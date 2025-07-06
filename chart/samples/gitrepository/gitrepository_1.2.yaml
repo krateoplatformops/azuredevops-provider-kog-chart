@@ -1,0 +1,17 @@
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: GitRepository
+metadata:
+  name: test-gitrepository-kog-1-2
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
+  api-version: "7.2-preview.2"                    # Version of the API to use
+
+  organization: "krateo-kog"                      # Name of the Azure DevOps organization
+  projectId: "test-project-1-classic"             # ID or name of the project
+
+  name: "test-gitrepository-kog-1-2"              # Name of the repository to create or manage  
+  initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.

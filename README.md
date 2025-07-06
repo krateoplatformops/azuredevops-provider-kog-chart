@@ -200,6 +200,18 @@ minimal schemas
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 ## Authentication
 
 The authentication to the Azure DevOps REST API is managed using 2 resources (both are required):

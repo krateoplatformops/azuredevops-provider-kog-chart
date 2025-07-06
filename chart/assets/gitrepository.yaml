@@ -291,9 +291,68 @@ paths:
       x-ms-vss-method: UpdateRepository
       x-ms-preview: true
       x-codegen-request-body-name: body
+  /api/{organization}/{projectId}/git/repositories:
+    post:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URL of the Azure DevOps RDC plugin
+      summary: Create a new GitRepository on Azure DevOps
+      description: Create a new GitRepository on Azure DevOps using the provided organization, project, and repository details.
+      operationId: post-gitrepository
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          description: Project ID or name
+          required: true
+          schema:
+            type: string
+        - name: api-version
+          in: query
+          description: API version (e.g., 7.2-preview.2)
+          required: true
+          schema:
+            type: string
+        - name: sourceRef
+          in: query
+          description: Specify the source refs to use while creating a fork repo
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header (Basic <base64-encoded-username:password>)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: GitRepository creation request body (with additional fields handled by the plugin)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/gitrepository.CreateRepositoryRequest'
+        required: true
+      responses:
+        "201":
+          description: GitRepository details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gitrepository.CreateRepositoryResponse'
+        "202":
+          description: GitRepository detailes (created but default branch creation is pending)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/gitrepository.CreateRepositoryResponse'
+      x-codegen-request-body-name: gitrepositoryCreate
 components:
   schemas:
-    GitRepository: # For response body
+    GitRepository: # For response body of GET
       type: object
       properties:
         _links:
@@ -339,7 +398,7 @@ components:
         webUrl:
           type: string
       description: ""
-    GitRepositoryCreateOptionsMinimal: # For request body of POST
+    GitRepositoryCreateOptionsMinimal:
       type: object
       properties:
         name:
@@ -395,8 +454,8 @@ components:
       properties:
         name:
           type: string
-        #defaultBranch: # to understand how to handle this field since it is not present in the CREATE operation
-        #  type: string
+        defaultBranch:
+          type: string
       description: "Options for updating a Git repository (e.g., changing the\
         \ name or default branch)."
     ReferenceLinks:
@@ -508,6 +567,162 @@ components:
           description: Project identifier.
           format: uuid
       description: Represents a minimal reference to a TeamProject, containing only the project ID.
+
+    # schemas from plugin
+    gitrepository.AzureDevOpsTime:
+      type: object
+      properties:
+        time.Time:
+          type: string
+    gitrepository.CreateRepositoryRequest:
+      type: object
+      properties:
+        defaultBranch:
+          type: string
+        initialize:
+          type: boolean
+          description: Indicates if the repository should be initialized with an initial commit
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/gitrepository.GitRepositoryRefMinimal'
+        project:
+          $ref: '#/components/schemas/gitrepository.TeamProjectReferenceMinimal'
+    gitrepository.CreateRepositoryResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/gitrepository.ReferenceLinks'
+        creationDate:
+          $ref: '#/components/schemas/gitrepository.AzureDevOpsTime'
+        defaultBranch:
+          type: string
+        id:
+          type: string
+        isDisabled:
+          type: boolean
+        isFork:
+          type: boolean
+        isInMaintenance:
+          type: boolean
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/gitrepository.GitRepositoryRef'
+        project:
+          $ref: '#/components/schemas/gitrepository.TeamProjectReference'
+        remoteUrl:
+          type: string
+        size:
+          type: integer
+        sshUrl:
+          type: string
+        url:
+          type: string
+        validRemoteUrls:
+          type: array
+          items:
+            type: string
+        webUrl:
+          type: string
+    gitrepository.GitRepositoryRef:
+      type: object
+      properties:
+        collection:
+          $ref: '#/components/schemas/gitrepository.TeamProjectCollectionReference'
+        id:
+          type: string
+        isFork:
+          type: boolean
+        name:
+          type: string
+        project:
+          $ref: '#/components/schemas/gitrepository.TeamProjectReference'
+        remoteUrl:
+          type: string
+        sshUrl:
+          type: string
+        url:
+          type: string
+    gitrepository.GitRepositoryRefMinimal:
+      type: object
+      properties:
+        id:
+          type: string
+        project:
+          $ref: '#/components/schemas/gitrepository.TeamProjectReferenceMinimal'
+    gitrepository.ProjectState:
+      type: string
+      enum:
+        - deleting
+        - new
+        - wellFormed
+        - createPending
+        - all
+        - unchanged
+        - deleted
+      x-enum-varnames:
+        - ProjectStateDeleting
+        - ProjectStateNew
+        - ProjectStateWellFormed
+        - ProjectStateCreatePending
+        - ProjectStateAll
+        - ProjectStateUnchanged
+        - ProjectStateDeleted
+    gitrepository.ProjectVisibility:
+      type: string
+      enum:
+        - private
+        - public
+      x-enum-varnames:
+        - ProjectVisibilityPrivate
+        - ProjectVisibilityPublic
+    gitrepository.ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties: true
+    gitrepository.TeamProjectCollectionReference:
+      type: object
+      properties:
+        avatarUrl:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+    gitrepository.TeamProjectReference:
+      type: object
+      properties:
+        abbreviation:
+          type: string
+        defaultTeamImageUrl:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        lastUpdateTime:
+          $ref: '#/components/schemas/gitrepository.AzureDevOpsTime'
+        name:
+          type: string
+        revision:
+          type: integer
+        state:
+          $ref: '#/components/schemas/gitrepository.ProjectState'
+        url:
+          type: string
+        visibility:
+          $ref: '#/components/schemas/gitrepository.ProjectVisibility'
+    gitrepository.TeamProjectReferenceMinimal:
+      type: object
+      properties:
+        id:
+          type: string
+    
   parameters:
     api-Version-preview.1:
       name: api-version
