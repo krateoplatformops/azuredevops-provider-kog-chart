@@ -13,6 +13,9 @@ spec:
     - remoteUrl
     - sshUrl
     - url
+    #additionalStatusFields:
+    #- defaultBranch
+    #- creationDate
     verbsDescription:
     - action: create
       method: POST
