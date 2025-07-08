@@ -14,6 +14,9 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Use in parallel with Azure DevOps Provider (classic)](#use-in-parallel-with-azure-devops-provider-classic)
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
+    - [Pipeline](#pipeline)
+        - [Pipeline operations](#pipeline-operations)
+        - [Pipeline example CR](#pipeline-example-cr)
     - [PipelinePermission](#pipelinepermission)
       - [PipelinePermission operations](#pipelinepermission-operations)
       - [PipelinePermission example CR](#pipelinepermission-example-cr)
@@ -91,6 +94,48 @@ The resources listed above are Custom Resources (CRs) defined in the `azuredevop
 
 You can find example resources for each supported resource type in the `/samples` folder of the chart.
 These examples Custom Resources (CRs) show every possible field that can be set in the resource based reflected on the Custom Resource Definitions (CRDs) that are generated and installed in the cluster.
+
+
+
+
+
+#### Pipeline
+
+what is pipeline not in main branch?
+
+
+Discovered problem with the `Pipeline` resource:
+
+Your controller is detecting a difference in the folder path format:
+ComparisonResult: IsEqual=false, Reason=values differ, 
+FirstValue=test-folder-kog, 
+SecondValue=\\test-folder-kog
+
+Your controller expects: test-folder-kog
+Azure DevOps API returns: \\test-folder-kog
+
+This happens because:
+
+Azure DevOps uses Windows-style path separators (\) in folder paths
+The API response shows "folder":"\\test-folder-kog" (escaped backslashes in JSON)
+
+Your controller's comparison logic doesn't account for this path format difference
+
+
+
+##### Main changes w.r.t. original OAS for `Pipeline`
+
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePipelineParametersComplete'
+
+CreatePipelineParametersComplete
+CreatePipelineConfigurationParametersComplete
+
+source: https://johnnyreilly.com/create-pipeline-with-azure-devops-api#curling-a-pipeline
+
 
 #### PipelinePermission
 
@@ -295,6 +340,11 @@ They also define the operations that can be performed on those resources. Once t
 - **Deployment**: Deploys a [plugin](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin) that is used as a proxy to resolve some inconsistencies of the Azure DevOps REST API. The specific endpoins managed by the plugin are described in the [plugin README](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin/blob/main/README.md)
 
 - **Service**: Exposes the plugin described above, allowing the resource controllers to communicate with the Azure DevOps REST API through the plugin, only if needed.
+
+## API references
+
+- [Azure DevOps REST API](https://learn.microsoft.com/en-us/rest/api/azure/devops/)
+- [Azure DevOps REST API specification](https://github.com/MicrosoftDocs/vsts-rest-api-specs)
 
 ## Troubleshooting
 
