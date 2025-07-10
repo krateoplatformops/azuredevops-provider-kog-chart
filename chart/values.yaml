@@ -122,7 +122,7 @@ plugin:
 
 restdefinitions:
   pipelinepermission:
-    enabled: false
+    enabled: true
   gitrepository:
     enabled: true
   pipeline:
