@@ -1,3 +1,10 @@
+# Azure DevOps API Versions currently used
+
+## Pipeline
+
+7.2-preview.1
+
+Note: build definitions uses version 7.2-preview.7
 
 ## PipelinePermission
 

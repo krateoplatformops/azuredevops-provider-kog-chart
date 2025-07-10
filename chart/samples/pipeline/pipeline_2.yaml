@@ -1,0 +1,24 @@
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: Pipeline
+metadata:
+  name: test-pipeline-kog-1
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth 
+  
+  api-version: "7.2-preview.1"                        # Version of the API to use
+  organization: krateo-kog                            # Name of the Azure DevOps organization
+  project: "test-project-1-classic"
+  
+  configuration:
+    path: "pipelines/inner_folder/another_config.yml" # Path to the pipeline configuration file within the repository
+    repository: 
+      id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"      # ID of the repository where the pipeline is defined
+      type: azureReposGit                             # Type of the repository, e.g., gitHub, azureReposGit, etc.
+    type: yaml                                        # Type of the pipeline configuration, e.g., yaml, designer, etc.
+
+  folder: "test-folder-kog"                           # folder of the pipeline
+  name: test-pipeline-kog-1                           # Name of the pipeline

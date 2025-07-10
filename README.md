@@ -9,6 +9,7 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 ## Summary
 
 - [Summary](#summary)
+- [Architecture](#architecture)
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
 - [Use in parallel with Azure DevOps Provider (classic)](#use-in-parallel-with-azure-devops-provider-classic)
@@ -17,6 +18,7 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
     - [Pipeline](#pipeline)
         - [Pipeline operations](#pipeline-operations)
         - [Pipeline example CR](#pipeline-example-cr)
+        - [Main changes w.r.t. original OAS for `Pipeline`](#main-changes-wrt-original-oas-for-pipeline)
     - [PipelinePermission](#pipelinepermission)
       - [PipelinePermission operations](#pipelinepermission-operations)
       - [PipelinePermission example CR](#pipelinepermission-example-cr)
@@ -33,6 +35,67 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
   - [Verbose logging](#verbose-logging)
 - [Chart structure](#chart-structure)
 - [Troubleshooting](#troubleshooting)
+
+## Architecture
+
+The diagram below illustrates the high-level architecture of the Krateo Azure DevOps Provider KOG and how it interacts with the Azure DevOps REST API.
+
+```mermaid
+graph TD
+    %% Define node order early to influence layout
+
+    APC -- Direct calls --> ADO_API
+
+    KOG -- Instanciates --> RDC1
+    KOG -- Instanciates --> RDC2
+    KOG -- Instanciates --> RDC3
+
+    
+    RDC1 --> Pipeline
+    RDC1 -- Direct calls --> ADO_API
+
+    RDC2 --> PipelinePermission
+    RDC2 -- Direct calls --> ADO_API
+    
+    
+    RDC3 -- Direct calls --> ADO_API
+    RDC3 --> GitRepository
+
+    
+    Pipeline -- "Fixes folder path,<br>consistent update/delete" --> ADO_API
+    PipelinePermission -- "Ensures allPipelines<br>property is set" --> ADO_API
+    GitRepository -- "Supports defaultBranch,<br>initialization, fork validation" --> ADO_API
+
+    subgraph Krateo Ecosystem
+        APC[azuredevops-provider <br> 'classic']
+        KOG[azuredevops-provider-kog]
+        RDC1[rest-dynamic-controller-1 <br> Pipeline]
+        RDC2[rest-dynamic-controller-2 <br> PipelinePermission]
+        RDC3[rest-dynamic-controller-3 <br> GitRepository]
+    end
+
+    subgraph "Plugin (This project)"
+        direction LR
+        Pipeline[Pipeline<br>Endpoints]
+        PipelinePermission[PipelinePermission<br>Endpoint]
+        GitRepository[GitRepository<br>Endpoint]
+    end
+
+    subgraph Azure DevOps
+        ADO_API[Azure DevOps REST API]
+    end
+
+    %% Styling
+    style RDC1 fill:#e0f2f7,stroke:#333,stroke-width:1px
+    style RDC2 fill:#e0f2f7,stroke:#333,stroke-width:1px
+    style RDC3 fill:#e0f2f7,stroke:#333,stroke-width:1px
+    style KOG fill:#e0f2f7,stroke:#333,stroke-width:1px
+    style ADO_API fill:#f0f0f0,stroke:#333,stroke-width:1px
+    style Pipeline fill:#d4f8d4,stroke:#333,stroke-width:1px
+    style PipelinePermission fill:#d4f8d4,stroke:#333,stroke-width:1px
+    style GitRepository fill:#d4f8d4,stroke:#333,stroke-width:1px
+
+```
 
 ## Requirements
 
@@ -79,6 +142,7 @@ This chart supports the following resources and operations:
 
 | Resource           | Get  | Create | Update | Delete |
 |--------------------|------|--------|--------|--------|
+| Pipeline           | ✅   | ✅     | ✅     | ✅     |
 | PipelinePermission | ✅   | ✅     | 🟡     | 🚫 Not supported    |
 | GitRepository      | ✅   | ✅     | ✅     | ✅     |
 
@@ -95,47 +159,48 @@ The resources listed above are Custom Resources (CRs) defined in the `azuredevop
 You can find example resources for each supported resource type in the `/samples` folder of the chart.
 These examples Custom Resources (CRs) show every possible field that can be set in the resource based reflected on the Custom Resource Definitions (CRDs) that are generated and installed in the cluster.
 
-
-
-
-
 #### Pipeline
 
-what is pipeline not in main branch?
+The `Pipeline` resource is used to manage Azure DevOps pipelines.
 
+##### Pipeline operations
 
-Discovered problem with the `Pipeline` resource:
+- **Create**: You can create a `Pipeline` resource to create a new pipeline in Azure DevOps. You can specify the name, project, organization, and the fields related to the pipeline configuration, such as the repository and path.
+- **Update**: You can update the name and configuration of an existing pipeline.
+- **Delete**: You can delete an existing pipeline. This will remove the pipeline from Azure DevOps.
 
-Your controller is detecting a difference in the folder path format:
-ComparisonResult: IsEqual=false, Reason=values differ, 
-FirstValue=test-folder-kog, 
-SecondValue=\\test-folder-kog
+##### PipelinePermission example CR
 
-Your controller expects: test-folder-kog
-Azure DevOps API returns: \\test-folder-kog
+An example of a `Pipeline` resource is:
+```yaml
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: Pipeline
+metadata:
+  name: test-pipeline-kog-1
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth 
+  
+  api-version: "7.2-preview.1"                    # Version of the API to use
+  organization: krateo-kog                        # Name of the Azure DevOps organization
+  project: "test-project-1-classic"
+  
+  configuration:
+    path: azure-pipelines.yml                      # Path to the pipeline configuration file within the repository
+    repository: 
+      id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"   # ID of the repository where the pipeline is defined
+      type: azureReposGit                          # Type of the repository, e.g., gitHub, azureReposGit, etc.
+    type: yaml                                     # Type of the pipeline configuration, e.g., yaml, designer, etc.
 
-This happens because:
-
-Azure DevOps uses Windows-style path separators (\) in folder paths
-The API response shows "folder":"\\test-folder-kog" (escaped backslashes in JSON)
-
-Your controller's comparison logic doesn't account for this path format difference
-
-
+  name: test-pipeline-kog-1                        # Name of the pipeline
+```
 
 ##### Main changes w.r.t. original OAS for `Pipeline`
 
-
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePipelineParametersComplete'
-
-CreatePipelineParametersComplete
-CreatePipelineConfigurationParametersComplete
-
-source: https://johnnyreilly.com/create-pipeline-with-azure-devops-api#curling-a-pipeline
-
+The schema for the request body of the `create` operation has been modified to include additional fields not documented in the original OpenAPI Specification (OAS) but required such (`configuration.repository` and `configuration.path`).
 
 #### PipelinePermission
 
@@ -149,7 +214,7 @@ The `PipelinePermission` resource is used to manage permissions for Azure DevOps
 
 ##### PipelinePermission example CR
 
-An example of a PipelinePermission resource is:
+An example of a `PipelinePermission` resource is:
 ```yaml
 apiVersion: azuredevops.kog.krateo.io/v1alpha1
 kind: PipelinePermission
@@ -181,7 +246,7 @@ spec:
 
 To revoke permissions for a pipeline, you need to:
 1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
-2. Update the `PipelinePermission` resource by removing the specific pipeline from the `pipelines` array in the `PipelinePermission` resource. 
+2. Update the `PipelinePermission` resource on Kubernetes by removing the specific pipeline `id` from the `pipelines` array in the `PipelinePermission` resource. 
 
 ##### Main changes w.r.t. original OAS for `PipelinePermission`
 
@@ -214,7 +279,8 @@ The `GitRepository` resource is used to manage Azure DevOps GitRepositories.
 - **Delete**: You can delete an existing GitRepository. This will remove the repository from Azure DevOps.
 
 ##### GitRepository example CR
-An example of a GitRepository resource is:
+
+An example of a `GitRepository` resource is:
 ```yaml
 apiVersion: azuredevops.kog.krateo.io/v1alpha1
 kind: GitRepository
@@ -232,7 +298,8 @@ spec:
   projectId: "test-project-1-classic"             # ID or name of the project
 
   name: "test-gitrepository-kog-v4"               # Name of the repository to create or manage  
-  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
+  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository. 
+  #Note that if you specify a default branch, the repository must be initialized with a first commit (and therefore `initialize` must be set to `true`), otherwise the repository will not be created successfully.
   initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.
 
   # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository

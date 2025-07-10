@@ -11,8 +11,8 @@ spec:
     identifiers:
     - id
     - url
-    #- _links.self.web # not working
-    #- _links.self.web.href not working
+    #- _links.self.web        # not working
+    #- _links.self.web.href   # not working
     additionalStatusFields:
     - revision
     verbsDescription:
@@ -24,11 +24,11 @@ spec:
       path: /{organization}/{project}/_apis/pipelines
     - action: get
       method: GET
-      path: /{organization}/{project}/_apis/pipelines/{id}
-    #- action: update
-    #  method: PATCH
-    #  path: 
-    #- action: delete
-    #  method: DELETE
-    #  path: 
+      path: /api/{organization}/{project}/pipelines/{id} # plugin endpoint
+    - action: update
+      method: PUT
+      path: /api/{organization}/{project}/pipelines/{id} # plugin endpoint
+    - action: delete
+      method: DELETE
+      path: /api/{organization}/{project}/pipelines/{id} # plugin endpoint
 {{ end }}

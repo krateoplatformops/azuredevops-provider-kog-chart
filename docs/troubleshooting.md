@@ -35,8 +35,7 @@ Files are named after the cases described below, e.g., [`gitrepository_2.3.yaml`
   - `initialize`: `false` or *omitted*
   - `defaultBranch`: `test-branch`
 - **Result**:
-  - Repository is **auto**-initialized with a **first commit** on the `test-branch` branch (which is set as `defaultBranch`).
-  - Notes: in this case the plugin initializes the repository in order to set the `test-branch` as the default branch with a first commit. So setting `initialize` to `false` and `defaultBranch` to any branch is not a recommended practice as the values are logically contradictory.
+  - Error 400: `When specifying a 'defaultBranch' for a new repository, 'initialize' must be set to true`
 ---
 
 ### 2. Forked Repository Cases (Parent Repository Initialized)
