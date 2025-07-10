@@ -1,0 +1,981 @@
+openapi: 3.0.1
+info:
+  title: Pipelines
+  description: ""
+  termsOfService: https://go.microsoft.com/fwlink/?LinkId=329770
+  contact:
+    name: nugetvss
+    email: nugetvss@microsoft.com
+  license:
+    name: MICROSOFT SOFTWARE LICENSE TERMS
+    url: https://go.microsoft.com/fwlink/?LinkId=329770
+  version: 7.2-preview
+externalDocs:
+  description: Azure DevOps REST APIs
+  url: https://aka.ms/azure-devops-rest-apis
+servers:
+- url: https://dev.azure.com/
+security:
+- accessToken: []
+tags:
+- name: Artifacts
+- name: Logs
+- name: Pipelines
+- name: Preview
+- name: Runs
+paths:
+  /{organization}/{project}/_apis/pipelines:
+    get:
+      tags:
+      - Pipelines
+      description: Get a list of pipelines.
+      operationId: Pipelines_List
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+      - name: orderBy
+        in: query
+        description: A sort expression. Defaults to "name asc"
+        schema:
+          type: string
+      - name: $top
+        in: query
+        description: The maximum number of pipelines to return
+        schema:
+          type: integer
+          format: int32
+      - name: continuationToken
+        in: query
+        description: "A continuation token from a previous request, to retrieve the\
+          \ next page of results"
+        schema:
+          type: string
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.1'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pipeline'
+      security:
+      - oauth2:
+        - vso.build
+      x-ms-docs-override-version: 7.2-preview.1
+      x-ms-vss-resource: pipelines
+      x-ms-vss-method: ListPipelines
+      x-ms-preview: true
+    post:
+      tags:
+      - Pipelines
+      description: Create a pipeline.
+      operationId: Pipelines_Create
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.1'
+          to use this version of the api.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Input parameters.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePipelineParametersComplete'
+        required: true
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pipeline'
+      security:
+      - oauth2:
+        - vso.build_execute
+      x-ms-docs-override-version: 7.2-preview.1
+      x-ms-vss-resource: pipelines
+      x-ms-vss-method: CreatePipeline
+      x-ms-preview: true
+      x-codegen-request-body-name: body 
+  /api/{organization}/{project}/pipelines/{id}:
+    get:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URL of the Azure DevOps RDC plugin
+      summary: Get a pipeline
+      description: Get
+      operationId: get-pipeline
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: project
+          in: path
+          description: Project name or ID
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Pipeline ID
+          required: true
+          schema:
+            type: string
+        - name: api-version
+          in: query
+          description: API version (e.g., 7.2-preview.1)
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header (Basic <base64-encoded-username:password>)
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pipeline details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pipeline.GetPipelineResponse'
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
+        "500":
+          description: Internal Server Error
+          content: {}
+    put:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URL of the Azure DevOps RDC plugin
+      summary: Update a pipeline
+      description: Update a pipeline using build definitions endpoint
+      operationId: put-pipeline
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: project
+          in: path
+          description: Project name or ID
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Pipeline ID
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header (Basic <base64-encoded-username:password>)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Pipeline update request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pipeline.UpdatePipelineRequest'
+        required: true
+      responses:
+        "200":
+          description: Updated pipeline details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pipeline.UpdatePipelineResponse'
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+        "500":
+          description: Internal Server Error
+          content: {}
+      x-codegen-request-body-name: pipelineUpdate
+    delete:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URL of the Azure DevOps RDC plugin
+      summary: Delete a pipeline
+      description: Delete a pipeline using build definitions endpoint
+      operationId: delete-pipeline
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: project
+          in: path
+          description: Project name or ID
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Pipeline ID
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header (Basic <base64-encoded-username:password>)
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: No Content - Pipeline deleted successfully
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+        "500":
+          description: Internal Server Error
+          content: {}
+components:
+  schemas:
+    Artifact:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the artifact.
+        signedContent:
+          $ref: '#/components/schemas/SignedUrl'
+        url:
+          type: string
+          description: Self-referential url
+      description: Artifacts are collections of files produced by a pipeline. Use
+        artifacts to share files between stages in a pipeline or between different
+        pipelines.
+    Build:
+      type: object
+      properties:
+        artifactSourceVersionUrl:
+          type: string
+        type:
+          type: string
+        versionId:
+          type: string
+        versionName:
+          type: string
+      description: ""
+    BuildRepository:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the repository.
+        #name:
+        #  type: string
+        #  description: The friendly name of the repository.
+        type:
+          type: string
+          description: The type of the repository.
+          enum:
+          - unknown
+          - gitHub
+          - azureReposGit
+          - azureReposGitHyphenated
+      required:
+        - id
+        - type
+      description: Repository information for the pipeline.
+    BuildResourceParameters:
+      type: object
+      properties:
+        version:
+          type: string
+      description: ""
+    Container:
+      type: object
+      properties:
+        environment:
+          type: object
+          additionalProperties:
+            type: string
+        image:
+          type: string
+        mapDockerSocket:
+          type: boolean
+        options:
+          type: string
+        ports:
+          type: array
+          items:
+            type: string
+        volumes:
+          type: array
+          items:
+            type: string
+      description: ""
+    ContainerResource:
+      type: object
+      properties:
+        container:
+          $ref: '#/components/schemas/Container'
+      description: ""
+    ContainerResourceParameters:
+      type: object
+      properties:
+        version:
+          type: string
+      description: ""
+    CreatePipelineConfigurationParameters:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of configuration.
+          enum:
+          - unknown
+          - yaml
+          - designerJson
+          - justInTime
+          - designerHyphenJson
+          x-ms-enum:
+            name: ConfigurationType
+            values:
+            - value: unknown
+              description: Unknown type.
+            - value: yaml
+              description: YAML.
+            - value: designerJson
+              description: Designer JSON.
+            - value: justInTime
+              description: Just-in-time.
+            - value: designerHyphenJson
+              description: Designer-JSON.
+      description: Configuration parameters of the pipeline.
+    CreatePipelineConfigurationParametersComplete:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of configuration.
+          enum:
+          - unknown
+          - yaml
+          - designerJson
+          - justInTime
+          - designerHyphenJson
+        path:
+          type: string
+          description: The folder path of the definition file in the repository.
+        repository:
+          $ref: '#/components/schemas/BuildRepository'
+      required:
+        - type
+        - repository
+      description: Configuration parameters of the pipeline.
+    CreatePipelineParameters:
+      type: object
+      properties:
+        configuration:
+          $ref: '#/components/schemas/CreatePipelineConfigurationParameters'
+        folder:
+          type: string
+          description: Folder of the pipeline.
+        name:
+          type: string
+          description: Name of the pipeline.
+      required:
+        - configuration
+        - name
+      description: Parameters to create a pipeline. 
+    CreatePipelineParametersComplete:
+      type: object
+      properties:
+        configuration:
+          $ref: '#/components/schemas/CreatePipelineConfigurationParametersComplete'
+        folder:
+          type: string
+          description: Folder of the pipeline.
+        name:
+          type: string
+          description: Name of the pipeline.
+      required:
+        - configuration
+        - name
+      description: Parameters to create a pipeline.
+    Log:
+      type: object
+      properties:
+        createdOn:
+          type: string
+          description: The date and time the log was created.
+          format: date-time
+        id:
+          type: integer
+          description: The ID of the log.
+          format: int32
+        lastChangedOn:
+          type: string
+          description: The date and time the log was last changed.
+          format: date-time
+        lineCount:
+          type: integer
+          description: The number of lines in the log.
+          format: int64
+        signedContent:
+          $ref: '#/components/schemas/SignedUrl'
+        url:
+          type: string
+      description: Log for a pipeline.
+    LogCollection:
+      type: object
+      properties:
+        logs:
+          type: array
+          description: The list of logs.
+          items:
+            $ref: '#/components/schemas/Log'
+        signedContent:
+          $ref: '#/components/schemas/SignedUrl'
+        url:
+          type: string
+          description: URL of the log.
+      description: A collection of logs.
+    PackageResourceParameters:
+      type: object
+      properties:
+        version:
+          type: string
+      description: ""
+    Pipeline:
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        configuration:
+          $ref: '#/components/schemas/PipelineConfiguration'
+        url:
+          type: string
+          description: URL of the pipeline
+      description: Definition of a pipeline.
+      allOf:
+      - $ref: '#/components/schemas/PipelineBase'
+    PipelineBase:
+      type: object
+      properties:
+        folder:
+          type: string
+          description: Pipeline folder
+        id:
+          type: integer
+          description: Pipeline ID
+          format: int32
+        name:
+          type: string
+          description: Pipeline name
+        revision:
+          type: integer
+          description: Revision number
+          format: int32
+      description: ""
+    PipelineConfiguration:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - unknown
+          - yaml
+          - designerJson
+          - justInTime
+          - designerHyphenJson
+          x-ms-enum:
+            name: ConfigurationType
+            values:
+            - value: unknown
+              description: Unknown type.
+            - value: yaml
+              description: YAML.
+            - value: designerJson
+              description: Designer JSON.
+            - value: justInTime
+              description: Just-in-time.
+            - value: designerHyphenJson
+              description: Designer-JSON.
+      description: ""
+    PipelineReference:
+      properties:
+        url:
+          type: string
+      description: A reference to a Pipeline.
+      allOf:
+      - $ref: '#/components/schemas/PipelineBase'
+    PipelineResource:
+      type: object
+      properties:
+        pipeline:
+          $ref: '#/components/schemas/PipelineReference'
+        version:
+          type: string
+      description: ""
+    PipelineResourceParameters:
+      type: object
+      properties:
+        runId:
+          type: integer
+          format: int32
+        version:
+          type: string
+      description: ""
+    PreviewRun:
+      type: object
+      properties:
+        finalYaml:
+          type: string
+      description: ""
+    ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+          description: "The readonly view of the links.  Because Reference links are\
+            \ readonly, we only want to expose them as read only."
+      description: The class to represent a collection of REST reference links.
+    Repository:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - unknown
+          - gitHub
+          - azureReposGit
+          - gitHubEnterprise
+          - bitBucket
+          - azureReposGitHyphenated
+          x-ms-enum:
+            name: RepositoryType
+            values:
+            - value: unknown
+              description: ""
+            - value: gitHub
+              description: ""
+            - value: azureReposGit
+              description: ""
+            - value: gitHubEnterprise
+              description: ""
+            - value: bitBucket
+              description: ""
+            - value: azureReposGitHyphenated
+              description: ""
+      description: ""
+    RepositoryResource:
+      type: object
+      properties:
+        refName:
+          type: string
+        repository:
+          $ref: '#/components/schemas/Repository'
+        version:
+          type: string
+      description: ""
+    RepositoryResourceParameters:
+      type: object
+      properties:
+        refName:
+          type: string
+        token:
+          type: string
+          description: This is the security token to use when connecting to the repository.
+        tokenType:
+          type: string
+          description: "Optional. This is the type of the token given. If not provided,\
+            \ a type of \"Bearer\" is assumed. Note: Use \"Basic\" for a PAT token."
+        version:
+          type: string
+      description: ""
+    Run:
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        createdDate:
+          type: string
+          format: date-time
+        finalYaml:
+          type: string
+        finishedDate:
+          type: string
+          format: date-time
+        pipeline:
+          $ref: '#/components/schemas/PipelineReference'
+        resources:
+          $ref: '#/components/schemas/RunResources'
+        result:
+          type: string
+          enum:
+          - unknown
+          - succeeded
+          - failed
+          - canceled
+          x-ms-enum:
+            name: RunResult
+            values:
+            - value: unknown
+              description: ""
+            - value: succeeded
+              description: ""
+            - value: failed
+              description: ""
+            - value: canceled
+              description: ""
+        state:
+          type: string
+          enum:
+          - unknown
+          - inProgress
+          - canceling
+          - completed
+          x-ms-enum:
+            name: RunState
+            values:
+            - value: unknown
+              description: ""
+            - value: inProgress
+              description: ""
+            - value: canceling
+              description: ""
+            - value: completed
+              description: ""
+        templateParameters:
+          type: object
+          additionalProperties:
+            type: object
+            properties: {}
+        url:
+          type: string
+        variables:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Variable'
+        yamlDetails:
+          $ref: '#/components/schemas/RunYamlDetails'
+      description: ""
+      allOf:
+      - $ref: '#/components/schemas/RunReference'
+    RunPipelineParameters:
+      type: object
+      properties:
+        previewRun:
+          type: boolean
+          description: "If true, don't actually create a new run. Instead, return\
+            \ the final YAML document after parsing templates."
+        resources:
+          $ref: '#/components/schemas/RunResourcesParameters'
+        stagesToSkip:
+          type: array
+          items:
+            type: string
+        templateParameters:
+          type: object
+          additionalProperties:
+            type: string
+        variables:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Variable'
+        yamlOverride:
+          type: string
+          description: "If you use the preview run option, you may optionally supply\
+            \ different YAML. This allows you to preview the final YAML document without\
+            \ committing a changed file."
+      description: Settings which influence pipeline runs.
+    RunReference:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+      description: ""
+    RunResources:
+      type: object
+      properties:
+        builds:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Build'
+        containers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ContainerResource'
+        pipelines:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PipelineResource'
+        repositories:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RepositoryResource'
+      description: ""
+    RunResourcesParameters:
+      type: object
+      properties:
+        builds:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/BuildResourceParameters'
+        containers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ContainerResourceParameters'
+        packages:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PackageResourceParameters'
+        pipelines:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PipelineResourceParameters'
+        repositories:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RepositoryResourceParameters'
+      description: ""
+    RunYamlDetails:
+      type: object
+      properties:
+        expandedYamlUrl:
+          type: string
+        extendedTemplates:
+          type: array
+          items:
+            $ref: '#/components/schemas/YamlFileDetails'
+        includedTemplates:
+          type: array
+          items:
+            $ref: '#/components/schemas/YamlFileDetails'
+        rootYamlFile:
+          $ref: '#/components/schemas/YamlFileDetails'
+      description: ""
+    SignalRConnection:
+      type: object
+      properties:
+        signedContent:
+          $ref: '#/components/schemas/SignedUrl'
+      description: ""
+    SignedUrl:
+      type: object
+      properties:
+        signatureExpires:
+          type: string
+          description: Timestamp when access expires.
+          format: date-time
+        url:
+          type: string
+          description: The URL to allow access to.
+      description: A signed url allowing limited-time anonymous access to private
+        resources.
+    Variable:
+      type: object
+      properties:
+        isSecret:
+          type: boolean
+        value:
+          type: string
+      description: ""
+    VssJsonCollectionWrapper:
+      properties:
+        value:
+          type: string
+          description: The serialized item.
+          format: T
+      description: This class is used to serialize collections as a single JSON object
+        on the wire.
+      allOf:
+      - $ref: '#/components/schemas/VssJsonCollectionWrapperBase'
+    VssJsonCollectionWrapperBase:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: The number of serialized items.
+          format: int32
+      description: ""
+    YamlFileDetails:
+      type: object
+      properties:
+        ref:
+          type: string
+        repoAlias:
+          type: string
+        yamlFile:
+          type: string
+      description: ""
+   
+    # schemas from the plugin
+    pipeline.BuildRepository:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Required
+        type:
+          type: string
+          description: 'Required - enum: unknown, gitHub, azureReposGit, azureReposGitHyphenated'
+    pipeline.GetPipelineResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/pipeline.ReferenceLinks'
+        configuration:
+          $ref: '#/components/schemas/pipeline.PipelineConfiguration'
+        folder:
+          type: string
+          description: Embedded fields from PipelineBase
+        id:
+          type: integer
+        name:
+          type: string
+        revision:
+          type: integer
+        url:
+          type: string
+    pipeline.PipelineConfiguration:
+      type: object
+      properties:
+        path:
+          type: string
+        repository:
+          type: object
+          description: Required
+          allOf:
+            - $ref: '#/components/schemas/pipeline.BuildRepository'
+        type:
+          type: string
+          description: 'enum: unknown, yaml, designerJson, justInTime, designerHyphenJson'
+    pipeline.PipelineConfigurationParameters:
+      type: object
+      properties:
+        path:
+          type: string
+        repository:
+          type: object
+          description: Required
+          allOf:
+            - $ref: '#/components/schemas/pipeline.BuildRepository'
+        type:
+          type: string
+          description: 'Required - enum: unknown, yaml, designerJson, justInTime, designerHyphenJson'
+    pipeline.ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties: true
+    pipeline.UpdatePipelineRequest:
+      type: object
+      properties:
+        configuration:
+          $ref: '#/components/schemas/pipeline.PipelineConfigurationParameters'
+        folder:
+          type: string
+        id:
+          type: integer
+          description: maybe to be removed since RDC does not include it
+        name:
+          type: string
+        revision:
+          type: integer
+    pipeline.UpdatePipelineResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/pipeline.ReferenceLinks'
+        configuration:
+          $ref: '#/components/schemas/pipeline.PipelineConfiguration'
+        folder:
+          type: string
+          description: Embedded fields from PipelineBase
+        id:
+          type: integer
+        name:
+          type: string
+        revision:
+          type: integer
+        url:
+          type: string
+  parameters:
+    api-Version-preview.1:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.1'
+        to use this version of the api.
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    accessToken:
+      type: http
+      description: Personal access token. Use any value for the user name and the
+        token as the password.
+      scheme: basic
+x-ms-vss-area: Pipelines
+x-original-swagger-version: "2.0"

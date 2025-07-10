@@ -97,7 +97,9 @@ tolerations: []
 
 affinity: {}
 
-env: []
+env:
+  - name: BUILD_DEFINITIONS_API_VERSION
+    value: "7.2-preview.7"
 
 livenessProbe:
   httpGet:
@@ -123,7 +125,6 @@ restdefinitions:
     enabled: true
   gitrepository:
     enabled: true
-
-#  pipeline:
-#    enabled: true
-#    version: 7.1
+  pipeline:
+    enabled: true
+    #version: 7.1

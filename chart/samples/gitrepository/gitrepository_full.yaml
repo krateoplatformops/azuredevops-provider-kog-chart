@@ -14,7 +14,8 @@ spec:
   projectId: "test-project-1-classic"             # ID or name of the project
 
   name: "test-gitrepository-kog-v4"               # Name of the repository to create or manage  
-  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
+  defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository. 
+  #Note that if you specify a default branch, the repository must be initialized with a first commit (and therefore `initialize` must be set to `true`), otherwise the repository will not be created successfully.
   initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.
 
   # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository

@@ -349,6 +349,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/gitrepository.CreateRepositoryResponse'
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
       x-codegen-request-body-name: gitrepositoryCreate
 components:
   schemas:

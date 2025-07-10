@@ -1,0 +1,9 @@
+{{- if .Values.restdefinitions.pipeline.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pipeline
+data:
+  pipeline.yaml: |
+{{ tpl (.Files.Get "assets/pipeline.yaml") . | indent 4 }}
+{{ end }}
