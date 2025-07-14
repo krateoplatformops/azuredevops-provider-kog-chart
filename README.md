@@ -15,21 +15,20 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Use in parallel with Azure DevOps Provider (classic)](#use-in-parallel-with-azure-devops-provider-classic)
   - [Lookup function example](#lookup-function-example)
 - [Supported resources](#supported-resources)
-  - [Resource details](#resource-details)
-    - [Pipeline](#pipeline)
-      - [Pipeline operations](#pipeline-operations)
-      - [Pipeline schema](#pipeline-schema)
-      - [Pipeline example CR](#pipeline-example-cr)
-    - [PipelinePermission](#pipelinepermission)
-      - [PipelinePermission operations](#pipelinepermission-operations)
-      - [PipelinePermission schema](#pipelinepermission-schema)
-      - [PipelinePermission example CR](#pipelinepermission-example-cr)
-      - [How to revoke permissions](#how-to-revoke-permissions)
-    - [GitRepository](#gitrepository)
-      - [GitRepository operations](#gitrepository-operations)
-      - [GitRepository schema](#gitrepository-schema)
-      - [GitRepository example CR](#gitrepository-example-cr)
-      - [Fork-related fields](#fork-related-fields)
+  - [Pipeline](#pipeline)
+    - [Pipeline operations](#pipeline-operations)
+    - [Pipeline schema](#pipeline-schema)
+    - [Pipeline example CR](#pipeline-example-cr)
+  - [PipelinePermission](#pipelinepermission)
+    - [PipelinePermission operations](#pipelinepermission-operations)
+    - [PipelinePermission schema](#pipelinepermission-schema)
+    - [PipelinePermission example CR](#pipelinepermission-example-cr)
+    - [How to revoke permissions](#how-to-revoke-permissions)
+  - [GitRepository](#gitrepository)
+    - [GitRepository operations](#gitrepository-operations)
+    - [GitRepository schema](#gitrepository-schema)
+    - [GitRepository example CR](#gitrepository-example-cr)
+    - [Fork-related fields](#fork-related-fields)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
   - [values.yaml](#valuesyaml)
@@ -156,7 +155,6 @@ The migration guide explains how to migrate from the Krateo Azure DevOps Provide
 
 // TODO
 
-
 ## Supported resources
 
 This chart supports the following resources and operations:
@@ -175,29 +173,27 @@ This chart supports the following resources and operations:
 
 The resources listed above are Custom Resources (CRs) defined in the `azuredevops.kog.krateo.io` API group. They are used to manage Azure DevOps resources in a Kubernetes-native way, allowing you to create, update, and delete Azure DevOps resources using Kubernetes manifests.
 
-### Resource examples
-
 You can find example resources for each supported resource type in the `/samples` folder of the chart.
 These examples Custom Resources (CRs) show every possible field that can be set in the resource based reflected on the Custom Resource Definitions (CRDs) that are generated and installed in the cluster.
 
-#### Pipeline
+### Pipeline
 
 The `Pipeline` resource is used to manage Azure DevOps pipelines.
 
-##### Pipeline operations
+#### Pipeline operations
 
 - **Create**: You can create a `Pipeline` resource to create a new pipeline in Azure DevOps. You can specify the name, project, organization, and the fields related to the pipeline configuration, such as the repository and path.
 - **Update**: You can update the name and configuration of an existing pipeline.
 - **Delete**: You can delete an existing pipeline. This will remove the pipeline from Azure DevOps.
 
-##### Pipeline schema
+#### Pipeline schema
 
 The `Pipeline` resource schema includes the following fields:
 
 // TODO
 
 
-##### Pipeline example CR
+#### Pipeline example CR
 
 An example of a `Pipeline` resource is:
 ```yaml
@@ -226,23 +222,23 @@ spec:
   name: test-pipeline-kog-1                        # Name of the pipeline
 ```
 
-#### PipelinePermission
+### PipelinePermission
 
 The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
 
-##### PipelinePermission operations
+#### PipelinePermission operations
 
 - **Create**: You can create a `PipelinePermission` resource to grant permissions for specific pipelines to use a specific resource, such as `environment`, `queue`, etc.
 - **Update**: Updating is only partially supported, meaning that you cannot directly revoke permissions (change the `authorized` field to `false`) for existing pipelines (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines). You can only add new pipelines with `authorized: true`. You can also change permissions for all pipelines in the project by setting the `allPipelines` field to `authorized: true` or `authorized: false`.
 - **Delete**: Deleting a `PipelinePermission` custom resource will not revoke permissions for the pipelines, it will only remove the resource from the cluster and the controller will stop managing it. The Azure DevOps pipelines will still have the permissions granted by the `PipelinePermission` resource until you manually revoke them in the Azure DevOps UI.
 
-###### PipelinePermission schema
+#### PipelinePermission schema
 
 The `PipelinePermission` resource schema includes the following fields:
 
 // TODO
 
-##### PipelinePermission example CR
+#### PipelinePermission example CR
 
 An example of a `PipelinePermission` resource is:
 ```yaml
@@ -272,26 +268,26 @@ spec:
     - id: 15
 ```
 
-##### How to revoke permissions
+#### How to revoke permissions
 
 To revoke permissions for a pipeline, you need to:
 1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
 2. Update the `PipelinePermission` resource on Kubernetes by removing the specific pipeline `id` from the `pipelines` array in the `PipelinePermission` resource. 
 
-#### GitRepository
+### GitRepository
 
 The `GitRepository` resource is used to manage Azure DevOps GitRepositories.
 
-##### GitRepository operations
+#### GitRepository operations
 - **Create**: You can create a new GitRepository in Azure DevOps. You can specify the name, project and organization, and other optional fields such as default branch, and whether the repository should be a fork of another repository.
 - **Update**: You can update the name and default branch of an existing GitRepository. Note that you cannot change the project or organization of an existing repository.
 - **Delete**: You can delete an existing GitRepository. This will remove the repository from Azure DevOps.
 
-##### GitRepository schema
+#### GitRepository schema
 
 // TODO
 
-##### GitRepository example CR
+#### GitRepository example CR
 
 An example of a `GitRepository` resource is:
 ```yaml
@@ -330,7 +326,7 @@ spec:
 
 ```
 
-##### Fork-related fields
+#### Fork-related fields
 
 You can learn more about the fork-related fields in the [Azure DevOps documentation](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/repositories/create#create-a-fork-of-a-parent-repository).
 
