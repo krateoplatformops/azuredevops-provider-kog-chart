@@ -12,7 +12,7 @@ Currently, the Azure DevOps Provider KOG supports the following resources:
 - You have a the [Azure DevOps Provider "classic"](https://github.com/krateoplatformops/azuredevops-provider) installed and properly configured in your cluster.
 - You have the [Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster.
 
-## `GitRepository` migration
+## `GitRepository` migration example
 
 **Starting point**: `GitRepository` resource managed by Azure DevOps Provider "classic".
 **Ending point**: `GitRepository` resource managed by Azure DevOps Provider KOG.
