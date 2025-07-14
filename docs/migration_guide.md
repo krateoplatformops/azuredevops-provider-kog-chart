@@ -7,11 +7,27 @@ Currently, the Azure DevOps Provider KOG supports the following resources:
 - `Pipeline`
 - `PipelinePermission`
 
+## Pre-requisites
+
+- You have a the [Azure DevOps Provider "classic"](https://github.com/krateoplatformops/azuredevops-provider) installed and properly configured in your cluster.
+- You have the [Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster.
+
 ## `GitRepository` migration
 
 **Starting point**: `GitRepository` resource managed by Azure DevOps Provider "classic".
-**End point**: `GitRepository` resource managed by Azure DevOps Provider KOG.
+**Ending point**: `GitRepository` resource managed by Azure DevOps Provider KOG.
 Note: the external resource (`GitRepository` on Azure DevOps) will be the same.
+
+Note that the `GitRepository` resource is a non-namespaced resource in the Azure DevOps Provider "classic", while it is a namespaced resource in the Azure DevOps Provider KOG (you can check this by running the following command):
+```sh
+kubectl api-resources | awk 'NR==1 || /git/'
+```
+Output:
+```sh
+NAME                                SHORTNAMES   APIVERSION                            NAMESPACED   KIND
+gitrepositories                                  azuredevops.kog.krateo.io/v1alpha1    true         GitRepository
+gitrepositories                                  azuredevops.krateo.io/v1alpha1        false        GitRepository
+```
 
 The **starting point** for the migration is the following example of a `GitRepository` resource managed by the Azure DevOps Provider "classic":
 ```yaml
@@ -119,7 +135,7 @@ spec:
   initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.
 ```
 
-Note that the projectRef field has been replaced with projectId, which can be either the ID or the name of the project.
+Note that the `projectRef` field has been replaced with `projectId`, which can be either the `ID` or the `name` of the project.
 In order to dynamically retrieve the project ID, you can use a `lookup` function.
 
 At this point, you can proceed to delete the old `GitRepository` resource managed by Azure DevOps Provide "classic" (note the different API group).
@@ -133,15 +149,4 @@ kubectl patch gitrepositories.azuredevops.krateo.io repo-1 \
 Then, you can delete the old resource managed by Azure DevOps Provide "classic" using the following command:
 ```sh
 kubectl delete gitrepositories.azuredevops.krateo.io repo-1
-```
-
-Note that the `GitRepository` resource is a non-namespaced resource in the Azure DevOps Provider "classic", while it is a namespaced resource in the Azure DevOps Provider KOG (you can check this by running the following command):
-```sh
-kubectl api-resources | awk 'NR==1 || /git/'
-```
-Output:
-```sh
-NAME                                SHORTNAMES   APIVERSION                            NAMESPACED   KIND
-gitrepositories                                  azuredevops.kog.krateo.io/v1alpha1    true         GitRepository
-gitrepositories                                  azuredevops.krateo.io/v1alpha1        false        GitRepository
 ```
