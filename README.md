@@ -74,7 +74,7 @@ graph TD
         RDC3[rest-dynamic-controller-3 <br> GitRepository]
     end
 
-    subgraph "Plugin (This project)"
+    subgraph "Plugin"
         direction LR
         Pipeline[Pipeline<br>Endpoints]
         PipelinePermission[PipelinePermission<br>Endpoint]
@@ -94,7 +94,6 @@ graph TD
     style Pipeline fill:#d4f8d4,stroke:#333,stroke-width:1px
     style PipelinePermission fill:#d4f8d4,stroke:#333,stroke-width:1px
     style GitRepository fill:#d4f8d4,stroke:#333,stroke-width:1px
-
 ```
 
 ## Requirements
