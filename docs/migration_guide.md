@@ -138,6 +138,16 @@ spec:
 Note that the `projectRef` field has been replaced with `projectId`, which can be either the `ID` or the `name` of the project.
 In order to dynamically retrieve the project ID, you can use a `lookup` function.
 
+You can check the new `GitRepository` resource managed by Azure DevOps Provider KOG by running the following command:
+```sh
+kubectl get gitrepositories.azuredevops.kog.krateo.io repo-1 -n azuredevops-system
+```
+And the output should look like this:
+```sh
+NAME     AGE   READY
+repo-1   5m    True
+```
+
 At this point, you can proceed to delete the old `GitRepository` resource managed by Azure DevOps Provide "classic" (note the different API group).
 First, you need to remove the finalizers from the old resource. You can do this by running the following command:
 ```sh
