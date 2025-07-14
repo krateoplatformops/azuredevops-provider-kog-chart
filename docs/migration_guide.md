@@ -1,24 +1,32 @@
-# Azure DevOps Provider KOG Migration Guide
+# Azure DevOps Provider KOG - Migration Guide
 
-This document provides a guide for migrating from Azure DevOps Provider "classic" resources to the new Azure DevOps Provider KOG resources.
+This document provides a guide for migrating from Krateo Azure DevOps Provider "classic" resources to the new Krateo Azure DevOps Provider KOG resources.
 
-Currently, the Azure DevOps Provider KOG supports the following resources:
+Currently, the Krateo Azure DevOps Provider KOG supports the following resources:
 - `GitRepository`
 - `Pipeline`
 - `PipelinePermission`
 
+## Summary
+
+- [Summary](#summary)
+- [Pre-requisites](#pre-requisites)
+- [GitRepository migration example](#gitrepository-migration-example)
+- [Pipeline migration example](#pipeline-migration-example)
+- [PipelinePermission migration example](#pipelinepermission-migration-example)
+
 ## Pre-requisites
 
-- You have a the [Azure DevOps Provider "classic"](https://github.com/krateoplatformops/azuredevops-provider) installed and properly configured in your cluster.
-- You have the [Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster.
+- You have a the [Krateo Azure DevOps Provider "classic"](https://github.com/krateoplatformops/azuredevops-provider) installed and properly configured in your cluster.
+- You have the [Krateo Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster.
 
 ## `GitRepository` migration example
 
-**Starting point**: `GitRepository` resource managed by Azure DevOps Provider "classic".
-**Ending point**: `GitRepository` resource managed by Azure DevOps Provider KOG.
+**Starting point**: `GitRepository` resource managed by Krateo Azure DevOps Provider "classic".
+**Ending point**: `GitRepository` resource managed by Krateo Azure DevOps Provider KOG.
 Note: the external resource (`GitRepository` on Azure DevOps) will be the same.
 
-Note that the `GitRepository` resource is a non-namespaced resource in the context of Azure DevOps Provider "classic", while it is a namespaced resource in the context of Azure DevOps Provider KOG (you can check this by running the following command):
+Note that the `GitRepository` resource is a non-namespaced resource in the context of Krateo Azure DevOps Provider "classic", while it is a namespaced resource in the context of Krateo Azure DevOps Provider KOG (you can check this by running the following command):
 ```sh
 kubectl api-resources | awk 'NR==1 || /git/'
 ```
@@ -29,7 +37,7 @@ gitrepositories                                  azuredevops.kog.krateo.io/v1alp
 gitrepositories                                  azuredevops.krateo.io/v1alpha1        false        GitRepository
 ```
 
-The **starting point** for the migration is the following example of a `GitRepository` resource managed by the Azure DevOps Provider "classic":
+The **starting point** for this migration is the following example of a `GitRepository` resource managed by the Krateo Azure DevOps Provider "classic":
 ```yaml
 apiVersion: azuredevops.krateo.io/v1alpha1
 kind: GitRepository
@@ -46,7 +54,7 @@ spec:
   initialize: true  
 ```
 
-Note that the `GitRepository` resource is referecing a `ConnectorConfig` resource and a `Project` resource, which are both managed by the Azure DevOps Provider "classic" and considered pre-requisites for the `GitRepository` resource manged by the Azure DevOps Provider KOG.
+Note that the `GitRepository` resource is referecing a `ConnectorConfig` resource and a `Project` resource, which are both managed by the Krateo Azure DevOps Provider "classic" and considered pre-requisites for the `GitRepository` resource manged by the Krateo Azure DevOps Provider KOG.
 
 To ensure that the old version of the resource is not reconciled while you are migrating to the new version, you should set the `krateo.io/paused: true` annotation.
 You can do this by running the following commands:
@@ -92,8 +100,8 @@ status:
 +    type: Synced
 ```
 
-Now, you can create a new `GitRepository` resource using the Azure DevOps Provider KOG following the new schema.
-Yoy can find the schema in the specific section of the [README](../README.md#gitrepository-schema) file of this chart.
+Now, you can create a new `GitRepository` resource using the Krateo Azure DevOps Provider KOG following the new schema.
+You can find the schema in the specific section of the [README](../README.md#gitrepository-schema) file of this chart.
 You can apply the following example:
 ```sh
 kubectl apply -f - <<EOF
@@ -165,7 +173,7 @@ spec:
 {{- end }}
 ```
 
-You can check the new `GitRepository` resource managed by Azure DevOps Provider KOG by running the following command:
+You can check the new `GitRepository` resource managed by Krateo Azure DevOps Provider KOG by running the following command:
 ```sh
 kubectl get gitrepositories.azuredevops.kog.krateo.io repo-1 -n azuredevops-system
 ```
@@ -175,9 +183,9 @@ NAME     AGE   READY
 repo-1   10s    True
 ```
 
-At this point, you can proceed to delete the old `GitRepository` resource managed by Azure DevOps Provide "classic" (note the different API group).
+At this point, you can proceed to delete the old `GitRepository` resource managed by Krateo Azure DevOps Provide "classic" (note the different API group).
 
-First, you can delete the old `GitRepository` resource managed by Azure DevOps Provider "classic":
+First, you can delete the old `GitRepository` resource managed by Krateo Azure DevOps Provider "classic":
 ```sh
 kubectl delete gitrepositories.azuredevops.krateo.io repo-1
 ```
@@ -187,3 +195,7 @@ Either you `CTRL+C` the previous command (that is hanging) and run the following
 ```sh
 kubectl annotate gitrepositories.azuredevops.krateo.io repo-1 --overwrite "krateo.io/paused=false"
 ```
+
+## `Pipeline` migration example
+
+## `PipelinePermission` migration example

@@ -1,6 +1,13 @@
-# OpenAPI Specification (OAS) Changes for Azure DevOps Provider KOG
+# Krateo Azure DevOps Provider KOG - OpenAPI Specification (OAS) Changes reference
 
 This documents serves as a reference for the changes made to the OpenAPI Specification (OAS) of the resources managed by the Azure DevOps Provider KOG.
+
+## Summary
+
+- [Summary](#summary)
+- [GitRepository](#gitrepository)
+- [Pipeline](#pipeline)
+- [PipelinePermission](#pipelinepermission)
 
 ## `GitRepository`
 

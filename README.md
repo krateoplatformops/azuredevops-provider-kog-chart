@@ -12,7 +12,7 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
-- [Use in parallel with Azure DevOps Provider (classic)](#use-in-parallel-with-azure-devops-provider-classic)
+- [Use in parallel with Krateo Azure DevOps Provider (classic)](#use-in-parallel-with-krateo-azure-devops-provider-classic)
   - [Lookup function example](#lookup-function-example)
 - [Supported resources](#supported-resources)
   - [Pipeline](#pipeline)
@@ -136,7 +136,7 @@ As a matter of fact, currently, this chart allows you to manage the following re
 Other resources (`TeamProject`, `Queue`, `Environment`, etc.) can be managed using the [Krateo Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) and referenced by the resources managed by this chart.
 For example, you can create a `PipelinePermission` resource that references an `Environment` resource created by the Azure DevOps Provider (classic).
 > [!NOTE]  
-> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the `Environment` by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the `status` field of the `Environment` resource created by the Azure DevOps Provider (classic). An example on how to reference resource in this way is available in the [Lookup function example](#lookup-function-example) section below.
+> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the `Environment` by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the `status` field of the `Environment` resource created by the Krateo Azure DevOps Provider (classic). An example on how to reference resource in this way is available in the [Lookup function example](#lookup-function-example) section below.
 
 Therefore the overall scenario is the following:
 - You should use the Krateo Azure DevOps Provider (classic) to manage resources that are not supported by this chart, such as `TeamProject`, `Queue`, `Environment`, etc.
@@ -410,9 +410,9 @@ They also define the operations that can be performed on those resources. Once t
 - [Azure DevOps REST API](https://learn.microsoft.com/en-us/rest/api/azure/devops/)
 - [Azure DevOps REST API specification](https://github.com/MicrosoftDocs/vsts-rest-api-specs)
 
-A document which describe the changes made to the OpenAPI Specification (OAS) of the resources managed by the Azure DevOps Provider KOG is available in the [OAS changes](./docs/OAS_changes.md) section of the `/docs` folder of this chart.
+A document which describe the changes made to the OpenAPI Specification (OAS) of the resources managed by the Krateo Azure DevOps Provider KOG is available in the [OAS changes](./docs/oas_changes_reference.md) section of the `/docs` folder of this chart.
 
 ## Troubleshooting
 
-For troubleshooting, you can refer to the [Troubleshooting guide](./docs/troubleshooting.md) in the `/docs` folder of this chart. 
+For troubleshooting, you can refer to the [Troubleshooting guide](./docs/troubleshooting_guide.md) in the `/docs` folder of this chart. 
 It contains common issues and solutions related to this chart.

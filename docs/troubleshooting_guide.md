@@ -1,12 +1,32 @@
-# AzureDevOps Provider KOG - Troubleshooting Guide
+# Krateo Azure DevOps Provider KOG - Troubleshooting Guide
+
+This document serves as a troubleshooting guide for the Krateo Azure DevOps Provider KOG.
+
+## Summary
+
+- [Summary](#summary)
+- [GitRepository](#gitrepository)
+  - [1. New Repository Cases](#1-new-repository-cases)
+    - [Case 1.1: New Repo Without Initialization](#case-11-new-repo-without-initialization)
+    - [Case 1.2: New Repo With Initialization (Default Branch Omitted)](#case-12-new-repo-with-initialization-default-branch-omitted)
+    - [Case 1.3: New Repo With Initialization and Custom Default Branch](#case-13-new-repo-with-initialization-and-custom-default-branch)
+    - [Case 1.4: New Repo With Custom Default Branch (Without Initialization Flag set to `true`)](#case-14-new-repo-with-custom-default-branch-without-initialization-flag-set-to-true)
+  - [2. Forked Repository Cases (Parent Repository Initialized)](#2-forked-repository-cases-parent-repository-initialized)
+    - [Case 2.1: Forked Repo With Nonexistent SourceRef](#case-21-forked-repo-with-nonexistent-sourceref)
+    - [Case 2.2: Forked Repo With Existing Default Branch in Parent](#case-22-forked-repo-with-existing-default-branch-in-parent)
+    - [Case 2.3: Forked Repo With Nonexistent Default Branch (Fallback to Parent Default)](#case-23-forked-repo-with-nonexistent-default-branch-fallback-to-parent-default)
+  - [3. Forked Repository Cases (Parent Repository Not Initialized)](#3-forked-repository-cases-parent-repository-not-initialized)
+    - [Case 3.1: Fork With Invalid `sourceRef`](#case-31-fork-with-invalid-sourceref)
+    - [Case 3.2: Fork With No Branch Configuration](#case-32-fork-with-no-branch-configuration)
+    - [Case 3.3: Fork With Nonexistent Default Branch](#case-33-fork-with-nonexistent-default-branch)
 
 ## GitRepository 
 
 This section outlines the expected behaviors of GitRepositories under different configurations during creation and forking.
 Each case states the input configuration and resulting behavior.
 
-Sample Custom Resources are provided in the [`/samples/gitrepository/` directory](../chart/samples/gitrepository/) of the chart. 
-Files are named after the cases described below, e.g., [`gitrepository_2.3.yaml`](../chart/samples/gitrepository/gitrepository_2.3.yaml) corresponds to Case 2.3.
+Some sample Custom Resources are provided in the [`/samples/gitrepository/` directory](../chart/samples/gitrepository/) of the chart. 
+Files are named after some of the cases described below, e.g., [`gitrepository_2.3.yaml`](../chart/samples/gitrepository/gitrepository_2.3.yaml) corresponds to Case 2.3.
 
 ---
 
@@ -30,7 +50,16 @@ Files are named after the cases described below, e.g., [`gitrepository_2.3.yaml`
 
 ---
 
-#### Case 1.3: New Repo With Custom Default Branch (Without Initialization Flag set to `true`)
+#### Case 1.3: New Repo With Initialization and Custom Default Branch
+- **Input**:
+  - `initialize`: `true`
+  - `defaultBranch`: `test-branch`
+- **Result**:
+  - Repository is initialized with a **first commit** on the `test-branch` branch.
+
+---
+
+#### Case 1.4: New Repo With Custom Default Branch (Without Initialization Flag set to `true`)
 - **Input**:
   - `initialize`: `false` or *omitted*
   - `defaultBranch`: `test-branch`
@@ -42,18 +71,7 @@ Files are named after the cases described below, e.g., [`gitrepository_2.3.yaml`
 
 > In fork scenarios, the `initialize` field is **ignored**.
 
-#### Case 2.1: Forked Repo With Existing Target Branch
-- **Preconditions**:
-  - Parent repository is **initialized** and has a branch named `test-branch`.
-- **Input**:
-  - `defaultBranch`: `test-branch` (which exists in parent repo)
-  - `sourceRef`: *includes* `test-branch` or *omitted*
-- **Result**:
-  - Repository is forked with `test-branch` as the **default branch** (git history is copied).
-
----
-
-#### Case 2.2: Forked Repo With Nonexistent SourceRef
+#### Case 2.1: Forked Repo With Nonexistent SourceRef
 - **Preconditions**:
   - Parent repository is **initialized** but does **not** have a branch named `test-branch`.
 - **Input**:
@@ -61,6 +79,17 @@ Files are named after the cases described below, e.g., [`gitrepository_2.3.yaml`
   - `sourceRef`: `test-branch`
 - **Result**:
   - **Error 400**: `SourceRef 'refs/heads/test-branch'` does not exist in parent repository.
+
+---
+
+#### Case 2.2: Forked Repo With Existing Default Branch in Parent
+- **Preconditions**:
+  - Parent repository is **initialized** and has a branch named `test-branch`.
+- **Input**:
+  - `defaultBranch`: `test-branch` (which exists in parent repo)
+  - `sourceRef`: *includes* `test-branch` or *omitted*
+- **Result**:
+  - Repository is forked with `test-branch` as the **default branch** (git history is copied).
 
 ---
 
