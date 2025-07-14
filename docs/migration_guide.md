@@ -18,7 +18,7 @@ Currently, the Azure DevOps Provider KOG supports the following resources:
 **Ending point**: `GitRepository` resource managed by Azure DevOps Provider KOG.
 Note: the external resource (`GitRepository` on Azure DevOps) will be the same.
 
-Note that the `GitRepository` resource is a non-namespaced resource in the Azure DevOps Provider "classic", while it is a namespaced resource in the Azure DevOps Provider KOG (you can check this by running the following command):
+Note that the `GitRepository` resource is a non-namespaced resource in the context of Azure DevOps Provider "classic", while it is a namespaced resource in the context of Azure DevOps Provider KOG (you can check this by running the following command):
 ```sh
 kubectl api-resources | awk 'NR==1 || /git/'
 ```
