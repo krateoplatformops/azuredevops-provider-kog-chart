@@ -102,7 +102,9 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
 - **Result**:
   - Repository is forked with the **default branch of the parent** repository (e.g., `main`) as the default branch (git history is copied).
   - Status code: **202 Accepted**
-  - Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
+  - Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. 
+  The Kubernetes resource will be in a `Ready: False` state until the user creates the `test-branch` on Azure DevOps.
+  After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
 
 ---
 
@@ -142,6 +144,8 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
   - Repository is forked in an **uninitialized** state.
   - No branches are created.
   - Status code: **202 Accepted**
-- Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
+- Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. 
+The Kubernetes resource will be in a `Ready: False` state until the user creates the `test-branch` on Azure DevOps.
+After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
 
 ---
