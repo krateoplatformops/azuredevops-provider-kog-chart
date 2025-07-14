@@ -1,7 +1,7 @@
-# Azure DevOps Provider KOG Helm Chart
+# Krateo Azure DevOps Provider KOG
 
 This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo Azure DevOps Provider KOG leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider).
-This provider allows you to manage [Azure DevOps resources](https://azure.microsoft.com/en-us/products/devops) such as `pipelinepermissions`, `pipelines` and `gitrepositories` using the Krateo platform.
+This provider allows you to manage [Azure DevOps resources](https://azure.microsoft.com/en-us/products/devops) such as `gitrepositories`, `pipelines`, and `pipelinepermissions` using the Krateo platform.
 
 > [!NOTE]  
 > This chart is still in development and not yet ready for production use.
@@ -125,7 +125,7 @@ kubectl wait deployments azuredevops-provider-kog-<RESOURCE>-controller --for co
 
 Make sure to replace `<RESOURCE>` to one of the resources supported by the chart, such as `pipelinepermission`, `pipeline`, `gitrepository`, and `<YOUR_NAMESPACE>` with the namespace where you installed the chart.
 
-## Use "in parallel" with Azure DevOps Provider (classic)
+## Use "in parallel" with Krateo Azure DevOps Provider (classic)
 
 This chart can be used in parallel with the [Krateo Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider).
 As a matter of fact, currently, this chart allows you to manage the following resources:
