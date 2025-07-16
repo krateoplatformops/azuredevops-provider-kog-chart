@@ -214,19 +214,19 @@ The `GitRepository` resource is used to manage Azure DevOps GitRepositories.
 
 The `GitRepository` resource schema includes the following fields:
 
-| Field | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.2`). | No |
-| `organization` | `string` | The name of the Azure DevOps organization. | No |
-| `projectId` | `string` | The ID or name of the project. | No |
-| `name` | `string` | The name of the repository to create or manage. | No |
-| `defaultBranch` | `string` | The default branch for the repository (e.g., `refs/heads/main`). | No |
-| `initialize` | `boolean` | If `true`, initializes the repository with a first commit. | No |
-| `parentRepository.id` | `string` | ID of the parent repository to fork. | No |
-| `parentRepository.project.id` | `string` | ID of the parent repository's project. | No |
-| `project.id` | `string` | ID of the project where the forked repository will be created. | No |
-| `sourceRef` | `string` | The source ref to use when creating a fork. Omitting it copies all branches. | No |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
+| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.2`). |
+| `organization` | `string` | The name of the Azure DevOps organization. |
+| `projectId` | `string` | The ID or name of the project. |
+| `name` | `string` | The name of the repository to create or manage. |
+| `defaultBranch` | `string` | The default branch for the repository (e.g., `refs/heads/main`). |
+| `initialize` | `boolean` | If `true`, initializes the repository with a first commit. |
+| `parentRepository.id` | `string` | ID of the parent repository to fork. |
+| `parentRepository.project.id` | `string` | ID of the parent repository's project. |
+| `project.id` | `string` | ID of the project where the forked repository will be created. |
+| `sourceRef` | `string` | The source ref to use when creating a fork. Omitting it copies all branches. |
 
 #### GitRepository example CR
 
@@ -285,17 +285,17 @@ The `Pipeline` resource is used to manage Azure DevOps pipelines.
 
 The `Pipeline` resource schema includes the following fields:
 
-| Field | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
-| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
-| `project` | `string` | The name or ID of the project. | Yes |
-| `name` | `string` | The name of the pipeline. | No |
-| `configuration.path` | `string` | Path to the pipeline configuration file within the repository. | No |
-| `configuration.repository.id` | `string` | ID of the repository where the pipeline is defined. | No |
-| `configuration.repository.type` | `string` | Type of the repository (e.g., `azureReposGit`). | No |
-| `configuration.type` | `string` | Type of the pipeline configuration (e.g., `yaml`). | No |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
+| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). |
+| `organization` | `string` | The name of the Azure DevOps organization. |
+| `project` | `string` | The name or ID of the project. |
+| `name` | `string` | The name of the pipeline. |
+| `configuration.path` | `string` | Path to the pipeline configuration file within the repository. |
+| `configuration.repository.id` | `string` | ID of the repository where the pipeline is defined. |
+| `configuration.repository.type` | `string` | Type of the repository (e.g., `azureReposGit`). |
+| `configuration.type` | `string` | Type of the pipeline configuration (e.g., `yaml`). |
 
 
 #### Pipeline example CR
@@ -342,18 +342,18 @@ The choice is driven by the fact that Azure DevOps REST API allows to retrieve o
 
 The `PipelinePermission` resource schema includes the following fields:
 
-| Field | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
-| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
-| `project` | `string` | The name or ID of the project. | Yes |
-| `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). | Yes |
-| `resourceId` | `string` | The ID of the resource to authorize. | Yes |
-| `allPipelines.authorized` | `boolean` | Set to `true` to authorize all pipelines, `false` to specify permissions individually. | No |
-| `pipelines` | `array` | A list of pipeline objects to authorize. | No |
-| `pipelines.id` | `integer` | The ID of the pipeline to grant permission to. | No |
-| `pipelines.authorized` | `boolean` | Set to `true` to grant permission. Defaults to `true`. Setting to `false` is not allowed. | No |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
+| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). |
+| `organization` | `string` | The name of the Azure DevOps organization. |
+| `project` | `string` | The name or ID of the project. |
+| `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). |
+| `resourceId` | `string` | The ID of the resource to authorize. |
+| `allPipelines.authorized` | `boolean` | Set to `true` to authorize all pipelines, `false` to specify permissions individually. |
+| `pipelines` | `array` | A list of pipeline objects to authorize. |
+| `pipelines.id` | `integer` | The ID of the pipeline to grant permission to. |
+| `pipelines.authorized` | `boolean` | Set to `true` to grant permission. Defaults to `true`. Setting to `false` is not allowed. |
 
 #### PipelinePermission example CR
 
