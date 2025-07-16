@@ -329,7 +329,17 @@ spec:
 
 ### PipelinePermission
 
-The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
+The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines to access resources.
+
+Examples of protected resources include:
+- Agent pools
+- Secret variables in variable groups
+- Secure files
+- Service connections
+- Environments
+- Repositories
+
+Reference to the official [Azure DevOps REST API documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/security/resources?view=azure-devops) for more details on pipeline permissions and how they work.
 
 #### PipelinePermission operations
 
@@ -348,7 +358,7 @@ The `PipelinePermission` resource schema includes the following fields:
 | `api-version` | `string` | The version of the Azure DevOps API to use (Currently supported: `7.2-preview.1`). |
 | `organization` | `string` | The name of the Azure DevOps organization. |
 | `project` | `string` | The name or ID of the project. |
-| `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). |
+| `resourceType` | `string` | The type of resource to authorize (e.g., `repository`, `environment`, `queue`, `teamproject`, `endpoint`, `variablegroup`, `securefile`). |
 | `resourceId` | `string` | The ID of the resource to authorize. |
 | `allPipelines.authorized` | `boolean` | Set to `true` to authorize all pipelines, `false` to specify permissions individually. |
 | `pipelines` | `array` | A list of pipeline objects to authorize. |
