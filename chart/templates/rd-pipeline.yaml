@@ -11,6 +11,7 @@ spec:
     identifiers:
     - id
     - url
+    - name
     #- _links.self.web        # not working
     #- _links.self.web.href   # not working
     additionalStatusFields:

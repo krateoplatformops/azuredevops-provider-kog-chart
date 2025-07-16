@@ -25,6 +25,6 @@ spec:
     project:
       id: "11790bc5-82bd-4cdc-b6a6-47bcb7187051"  # ID of the parent repository's project
 
-  sourceRef: "refs/heads/test-branch-not-existing"
+  sourceRef: "refs/heads/test-branch"
   # omitting sourceRef will copy all branches from parent 
   # assignin a non-existing branch to sourceRef will result in an error

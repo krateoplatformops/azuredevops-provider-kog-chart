@@ -13,6 +13,7 @@ spec:
     - remoteUrl
     - sshUrl
     - url
+    - name
     verbsDescription:
     - action: create
       method: POST
