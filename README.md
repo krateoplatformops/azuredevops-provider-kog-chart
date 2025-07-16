@@ -13,7 +13,7 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
 - [Use in parallel with Krateo Azure DevOps Provider (classic)](#use-in-parallel-with-krateo-azure-devops-provider-classic)
-  - [Lookup function example](#lookup-function-example)
+  - [Lookup functions example](#lookup-functions-example)
 - [Supported resources](#supported-resources)
   - [Pipeline](#pipeline)
     - [Pipeline operations](#pipeline-operations)
@@ -136,7 +136,7 @@ As a matter of fact, currently, this chart allows you to manage the following re
 Other resources (`TeamProject`, `Queue`, `Environment`, etc.) can be managed using the [Krateo Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) and referenced by the resources managed by this chart.
 For example, you can create a `PipelinePermission` resource that references an `Environment` resource created by the Azure DevOps Provider (classic).
 > [!NOTE]  
-> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the `Environment` by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the `status` field of the `Environment` resource created by the Krateo Azure DevOps Provider (classic). An example on how to reference resource in this way is available in the [Lookup function example](#lookup-function-example) section below.
+> These references are "by id" or other Azure DevOps resource identifiers but not Kubernetes-native. Meaning that the `PipelinePermission` resource will reference the `Environment` by its `id`, not by a Kubernetes resource name and namespace. Said `id` can be found in the `status` field of the `Environment` resource created by the Krateo Azure DevOps Provider (classic). An example on how to reference resource in this way is available in the [Lookup functions example](#lookup-functions-example) section below.
 
 Therefore the overall scenario is the following:
 - You should use the Krateo Azure DevOps Provider (classic) to manage resources that are not supported by this chart, such as `TeamProject`, `Queue`, `Environment`, etc.
@@ -150,9 +150,35 @@ Note that the following resources:
 are supported by both the Krateo Azure DevOps Provider (classic) and the Krateo Azure DevOps Provider KOG and a migration guide is available in the [Migration guide](./docs/migration_guide.md) section of the `/docs` folder of this chart.
 The migration guide explains how to migrate from the Krateo Azure DevOps Provider (classic) resources to the Krateo Azure DevOps Provider KOG resources.
 
-### Lookup function example
+### Lookup functions example
 
-// TODO
+An example of how to use the `lookup` function to retrieve the project ID, environment ID and pipeline ID dynamically is shown below, in the context of the `PipelinePermission` resource.
+In this case the context is a Helm chart, so the `lookup` function is used to retrieve the `TeamProject`, `Environment` and `Pipeline` resources by their names and namespace, and then the project ID, environment ID, and pipeline ID are accessed from the status of those resources.
+
+```yaml
+{{- $project := lookup "azuredevops.krateo.io/v1alpha1" "TeamProject" .Release.Namespace (.Values.project.name | lower) }}
+{{- if and $project $project.status $project.status.id }}
+
+{{- $environment := lookup "azuredevops.krateo.io/v1alpha1" "Environment" .Release.Namespace (.Values.environment.name | lower) }}
+{{- if and $environment $environment.status $environment.status.id }}
+
+{{- $pipeline := lookup "azuredevops.krateo.io/v1alpha1" "Pipeline" .Release.Namespace (.Values.pipeline.name | lower) }}
+{{- if and $pipeline $pipeline.status $pipeline.status.id }}
+
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: PipelinePermission
+spec:
+  project: "{{ $project.status.id }}"         # Dynamically retrieve the project ID
+
+  resourceType: "environment"                 # Type of the resource
+  resourceId: "{{ $environment.status.id }}"  # Dynamically retrieve the environment ID
+
+  pipelines:
+    - id: "{{ $pipeline.status.id }}"         # Dynamically retrieve the pipeline ID  
+...
+
+{{- end }}
+```
 
 ## Supported resources
 
@@ -174,125 +200,6 @@ The resources listed above are Custom Resources (CRs) defined in the `azuredevop
 
 You can find example resources for each supported resource type in the `/samples` folder of the chart.
 These examples Custom Resources (CRs) show every possible field that can be set in the resource based reflected on the Custom Resource Definitions (CRDs) that are generated and installed in the cluster.
-
-### Pipeline
-
-The `Pipeline` resource is used to manage Azure DevOps pipelines.
-
-#### Pipeline operations
-
-- **Create**: You can create a `Pipeline` resource to create a new pipeline in Azure DevOps. You can specify the name, project, organization, and the fields related to the pipeline configuration, such as the repository and path.
-- **Update**: You can update the name and configuration of an existing pipeline.
-- **Delete**: You can delete an existing pipeline. This will remove the pipeline from Azure DevOps.
-
-#### Pipeline schema
-
-The `Pipeline` resource schema includes the following fields:
-
-| Field | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
-| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
-| `project` | `string` | The name or ID of the project. | Yes |
-| `name` | `string` | The name of the pipeline. | No |
-| `configuration.path` | `string` | Path to the pipeline configuration file within the repository. | No |
-| `configuration.repository.id` | `string` | ID of the repository where the pipeline is defined. | No |
-| `configuration.repository.type` | `string` | Type of the repository (e.g., `azureReposGit`). | No |
-| `configuration.type` | `string` | Type of the pipeline configuration (e.g., `yaml`). | No |
-
-
-#### Pipeline example CR
-
-An example of a `Pipeline` resource is:
-```yaml
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
-kind: Pipeline
-metadata:
-  name: test-pipeline-kog-1
-  namespace: adp
-  annotations:
-    krateo.io/connector-verbose: "true"
-spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth 
-  
-  api-version: "7.2-preview.1"                    # Version of the API to use
-  organization: krateo-kog                        # Name of the Azure DevOps organization
-  project: "test-project-1-classic"
-  
-  configuration:
-    path: azure-pipelines.yml                      # Path to the pipeline configuration file within the repository
-    repository: 
-      id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"   # ID of the repository where the pipeline is defined
-      type: azureReposGit                          # Type of the repository, e.g., gitHub, azureReposGit, etc.
-    type: yaml                                     # Type of the pipeline configuration, e.g., yaml, designer, etc.
-
-  name: test-pipeline-kog-1                        # Name of the pipeline
-```
-
-### PipelinePermission
-
-The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
-
-#### PipelinePermission operations
-
-- **Create**: You can create a `PipelinePermission` resource to grant permissions for specific pipelines to use a specific resource, such as `environment`, `queue`, etc.
-- **Update**: Updating is only partially supported, meaning that you cannot directly revoke permissions (change the `authorized` field to `false`) for existing pipelines (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines). You can only add new pipelines with `authorized: true`. You can also change permissions for all pipelines in the project by setting the `allPipelines` field to `authorized: true` or `authorized: false`.
-- **Delete**: Deleting a `PipelinePermission` custom resource will not revoke permissions for the pipelines, it will only remove the resource from the cluster and the controller will stop managing it. The Azure DevOps pipelines will still have the permissions granted by the `PipelinePermission` resource until you manually revoke them in the Azure DevOps UI.
-
-#### PipelinePermission schema
-
-The `PipelinePermission` resource schema includes the following fields:
-
-| Field | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
-| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
-| `project` | `string` | The name or ID of the project. | Yes |
-| `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). | Yes |
-| `resourceId` | `string` | The ID of the resource to authorize. | Yes |
-| `allPipelines.authorized` | `boolean` | Set to `true` to authorize all pipelines, `false` to specify permissions individually. | No |
-| `pipelines` | `array` | A list of pipeline objects to authorize. | No |
-| `pipelines.id` | `integer` | The ID of the pipeline to grant permission to. | No |
-| `pipelines.authorized` | `boolean` | Set to `true` to grant permission. Defaults to `true`. Setting to `false` is not allowed. | No |
-
-#### PipelinePermission example CR
-
-An example of a `PipelinePermission` resource is:
-```yaml
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
-kind: PipelinePermission
-metadata:
-  name: test-pp
-  namespace: adp
-  annotations:
-    krateo.io/connector-verbose: "true"
-spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth
-  api-version: 7.2-preview.1
-  
-  organization: "krateo-kog"
-  project: "test-project-1-classic"
-  resourceType: "environment" 
-  resourceId: "7"
-
-  allPipelines:
-    authorized: false
-
-  pipelines:
-    - id: 14
-      # authorized: true is not required, since it is the default value (authorized: false is not allowed)
-    - id: 15
-```
-
-#### How to revoke permissions
-
-To revoke permissions for a pipeline, you need to:
-1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
-2. Update the `PipelinePermission` resource on Kubernetes by removing the specific pipeline `id` from the `pipelines` array in the `PipelinePermission` resource. 
 
 ### GitRepository
 
@@ -363,6 +270,126 @@ spec:
 #### Fork-related fields
 
 You can learn more about the fork-related fields in the [Azure DevOps documentation](https://learn.microsoft.com/en-us/rest/api/azure/devops/git/repositories/create#create-a-fork-of-a-parent-repository).
+
+### Pipeline
+
+The `Pipeline` resource is used to manage Azure DevOps pipelines.
+
+#### Pipeline operations
+
+- **Create**: You can create a `Pipeline` resource to create a new pipeline in Azure DevOps. You can specify the name, project, organization, and the fields related to the pipeline configuration, such as the repository and path.
+- **Update**: You can update the name and configuration of an existing pipeline.
+- **Delete**: You can delete an existing pipeline. This will remove the pipeline from Azure DevOps.
+
+#### Pipeline schema
+
+The `Pipeline` resource schema includes the following fields:
+
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
+| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
+| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
+| `project` | `string` | The name or ID of the project. | Yes |
+| `name` | `string` | The name of the pipeline. | No |
+| `configuration.path` | `string` | Path to the pipeline configuration file within the repository. | No |
+| `configuration.repository.id` | `string` | ID of the repository where the pipeline is defined. | No |
+| `configuration.repository.type` | `string` | Type of the repository (e.g., `azureReposGit`). | No |
+| `configuration.type` | `string` | Type of the pipeline configuration (e.g., `yaml`). | No |
+
+
+#### Pipeline example CR
+
+An example of a `Pipeline` resource is:
+```yaml
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: Pipeline
+metadata:
+  name: test-pipeline-kog-1
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth 
+  
+  api-version: "7.2-preview.1"                    # Version of the API to use
+  organization: krateo-kog                        # Name of the Azure DevOps organization
+  project: "test-project-1-classic"
+  
+  configuration:
+    path: azure-pipelines.yml                      # Path to the pipeline configuration file within the repository
+    repository: 
+      id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"   # ID of the repository where the pipeline is defined
+      type: azureReposGit                          # Type of the repository, e.g., gitHub, azureReposGit, etc.
+    type: yaml                                     # Type of the pipeline configuration, e.g., yaml, designer, etc.
+
+  name: test-pipeline-kog-1                        # Name of the pipeline
+```
+
+### PipelinePermission
+
+The `PipelinePermission` resource is used to manage permissions for Azure DevOps pipelines.
+
+#### PipelinePermission operations
+
+- **Create**: You can create a `PipelinePermission` resource to grant permissions for specific pipelines to use a specific resource, such as `environment`, `queue`, etc.
+- **Update**: Updating is only partially supported, meaning that you cannot directly revoke permissions (change the `authorized` field to `false`) for existing pipelines (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines). You can only add new pipelines with `authorized: true`. You can also change permissions for all pipelines in the project by setting the `allPipelines` field to `authorized: true` or `authorized: false`.
+- **Delete**: Deleting a `PipelinePermission` custom resource will not revoke permissions for the pipelines, it will only remove the resource from the cluster and the controller will stop managing it. The Azure DevOps pipelines will still have the permissions granted by the `PipelinePermission` resource until you manually revoke them in the Azure DevOps UI (see the [section below](#how-to-revoke-permissions) on how to revoke permissions for pipelines).
+The choice is driven by the fact that Azure DevOps REST API allows to retrieve only the pipelines that are authorized, therefore the management of both authorized and unauthorized pipelines is not possible.
+
+#### PipelinePermission schema
+
+The `PipelinePermission` resource schema includes the following fields:
+
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. | Yes |
+| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). | Yes |
+| `organization` | `string` | The name of the Azure DevOps organization. | Yes |
+| `project` | `string` | The name or ID of the project. | Yes |
+| `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). | Yes |
+| `resourceId` | `string` | The ID of the resource to authorize. | Yes |
+| `allPipelines.authorized` | `boolean` | Set to `true` to authorize all pipelines, `false` to specify permissions individually. | No |
+| `pipelines` | `array` | A list of pipeline objects to authorize. | No |
+| `pipelines.id` | `integer` | The ID of the pipeline to grant permission to. | No |
+| `pipelines.authorized` | `boolean` | Set to `true` to grant permission. Defaults to `true`. Setting to `false` is not allowed. | No |
+
+#### PipelinePermission example CR
+
+An example of a `PipelinePermission` resource is:
+```yaml
+apiVersion: azuredevops.kog.krateo.io/v1alpha1
+kind: PipelinePermission
+metadata:
+  name: test-pp
+  namespace: adp
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  authenticationRefs:
+    basicAuthRef: azure-devops-basic-auth
+  api-version: 7.2-preview.1
+  
+  organization: "krateo-kog"
+  project: "test-project-1-classic"
+  resourceType: "environment" 
+  resourceId: "7"
+
+  allPipelines:
+    authorized: false
+
+  pipelines:
+    - id: 14
+      # authorized: true is not required, since it is the default value (authorized: false is not allowed)
+    - id: 15
+```
+
+#### How to revoke permissions
+
+To revoke permissions for a pipeline, you need to:
+1. Manually remove the specific `Pipeline` in the Azure DevOps UI under the `Pipeline permission` section of the resource you want to manage (e.g., `Environment`, `Queue`, etc.).
+2. Update the `PipelinePermission` resource on Kubernetes by removing the specific pipeline `id` from the `pipelines` array in the `PipelinePermission` resource. 
 
 ## Authentication
 

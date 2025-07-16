@@ -609,7 +609,7 @@ Note that the `resource` field has been replaced with `resourceType` and `resour
 
 Note that the `pipelineRef` fields have been replaced with `id`, which are the ID of the pipelines to authorize for the resource.
 
-An example of how to use the `lookup` function to retrieve the project ID and pipeline ID dynamically is shown below.
+An example of how to use the `lookup` function to retrieve the project ID, environment ID and pipeline ID dynamically is shown below.
 In this case the context is a Helm chart, so the `lookup` function is used to retrieve the `TeamProject`, `Environment` and `Pipeline` resources by their names and namespace, and then the project ID, environment ID, and pipeline ID are accessed from the status of those resources.
 
 ```yaml
@@ -625,13 +625,13 @@ In this case the context is a Helm chart, so the `lookup` function is used to re
 apiVersion: azuredevops.kog.krateo.io/v1alpha1
 kind: PipelinePermission
 spec:
-  project: "{{ $project.status.id }}"  # Dynamically retrieve the project ID
+  project: "{{ $project.status.id }}"           # Dynamically retrieve the project ID
 
-  resourceType: "environment"          # Type of the resource
-  resourceId: "{{ $environment.status.id }}"  # Dynamically retrieve the environment ID
+  resourceType: "environment"                   # Type of the resource
+  resourceId: "{{ $environment.status.id }}"    # Dynamically retrieve the environment ID
 
   pipelines:
-    - id: "{{ $pipeline.status.id }}"  # Dynamically retrieve the pipeline ID  
+    - id: "{{ $pipeline.status.id }}"           # Dynamically retrieve the pipeline ID  
 ...
 
 {{- end }}
