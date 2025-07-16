@@ -1,0 +1,232 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  creationTimestamp: "2025-07-16T09:07:31Z"
+  generation: 1
+  name: pipelines.azuredevops.kog.krateo.io
+  resourceVersion: "112434"
+  uid: 68de5e03-2829-45ae-8038-9ad5263fe027
+spec:
+  conversion:
+    strategy: None
+  group: azuredevops.kog.krateo.io
+  names:
+    categories:
+    - pipeline
+    - restresources
+    - rr
+    kind: Pipeline
+    listKind: PipelineList
+    plural: pipelines
+    singular: pipeline
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Parameters to create a pipeline.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          spec:
+            properties:
+              $top:
+                description: 'PARAMETER: query, VERB: Get - The maximum number of
+                  pipelines to return'
+                type: integer
+              Authorization:
+                description: 'PARAMETER: header, VERB: Get - Basic Auth header (Basic
+                  <base64-encoded-username:password>)'
+                type: string
+              api-version:
+                description: 'PARAMETER: query, VERB: Get - Version of the API to
+                  use.  This should be set to ''7.2-preview.1'' to use this version
+                  of the api.'
+                type: string
+              authenticationRefs:
+                description: AuthenticationRefs represent the reference to a CR containing
+                  the authentication information. One authentication method must be
+                  set.
+                properties:
+                  basicAuthRef:
+                    type: string
+                type: object
+              configuration:
+                description: Configuration parameters of the pipeline.
+                properties:
+                  path:
+                    description: The folder path of the definition file in the repository.
+                    type: string
+                  repository:
+                    description: Repository information for the pipeline.
+                    properties:
+                      id:
+                        description: The ID of the repository.
+                        type: string
+                      type:
+                        description: The type of the repository.
+                        enum:
+                        - unknown
+                        - gitHub
+                        - azureReposGit
+                        - azureReposGitHyphenated
+                        type: string
+                    required:
+                    - id
+                    - type
+                    type: object
+                  type:
+                    description: Type of configuration.
+                    enum:
+                    - unknown
+                    - yaml
+                    - designerJson
+                    - justInTime
+                    - designerHyphenJson
+                    type: string
+                required:
+                - repository
+                - type
+                type: object
+              continuationToken:
+                description: 'PARAMETER: query, VERB: Get - A continuation token from
+                  a previous request, to retrieve the next page of results'
+                type: string
+              folder:
+                description: Folder of the pipeline.
+                type: string
+              id:
+                description: 'PARAMETER: path, VERB: Get - Pipeline ID'
+                type: string
+              name:
+                description: Name of the pipeline.
+                type: string
+              orderBy:
+                description: 'PARAMETER: query, VERB: Get - A sort expression. Defaults
+                  to "name asc"'
+                type: string
+              organization:
+                description: 'PARAMETER: path, VERB: Get - The name of the Azure DevOps
+                  organization.'
+                type: string
+              project:
+                description: 'PARAMETER: path, VERB: Get - Project ID or project name'
+                type: string
+              url:
+                description: 'IDENTIFIER: url'
+                type: string
+            required:
+            - authenticationRefs
+            type: object
+          status:
+            properties:
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              failedObjectRef:
+                properties:
+                  apiVersion:
+                    description: API version of the object.
+                    type: string
+                  kind:
+                    description: Kind of the object.
+                    type: string
+                  name:
+                    description: Name of the object.
+                    type: string
+                  namespace:
+                    description: Namespace of the object.
+                    type: string
+                type: object
+              id:
+                type: string
+              name:
+                type: string
+              revision:
+                type: string
+              url:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    categories:
+    - pipeline
+    - restresources
+    - rr
+    kind: Pipeline
+    listKind: PipelineList
+    plural: pipelines
+    singular: pipeline
+  conditions:
+  - lastTransitionTime: "2025-07-16T09:07:31Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2025-07-16T09:07:31Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1alpha1
