@@ -15,6 +15,11 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Use in parallel with Krateo Azure DevOps Provider (classic)](#use-in-parallel-with-krateo-azure-devops-provider-classic)
   - [Lookup functions example](#lookup-functions-example)
 - [Supported resources](#supported-resources)
+  - [GitRepository](#gitrepository)
+    - [GitRepository operations](#gitrepository-operations)
+    - [GitRepository schema](#gitrepository-schema)
+    - [GitRepository example CR](#gitrepository-example-cr)
+    - [Fork-related fields](#fork-related-fields)
   - [Pipeline](#pipeline)
     - [Pipeline operations](#pipeline-operations)
     - [Pipeline schema](#pipeline-schema)
@@ -24,11 +29,6 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
     - [PipelinePermission schema](#pipelinepermission-schema)
     - [PipelinePermission example CR](#pipelinepermission-example-cr)
     - [How to revoke permissions](#how-to-revoke-permissions)
-  - [GitRepository](#gitrepository)
-    - [GitRepository operations](#gitrepository-operations)
-    - [GitRepository schema](#gitrepository-schema)
-    - [GitRepository example CR](#gitrepository-example-cr)
-    - [Fork-related fields](#fork-related-fields)
 - [Authentication](#authentication)
 - [Configuration](#configuration)
   - [values.yaml](#valuesyaml)
@@ -217,7 +217,7 @@ The `GitRepository` resource schema includes the following fields:
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.2`). |
+| `api-version` | `string` | The version of the Azure DevOps API to use (Currently supported: `7.2-preview.2`). |
 | `organization` | `string` | The name of the Azure DevOps organization. |
 | `projectId` | `string` | The ID or name of the project. |
 | `name` | `string` | The name of the repository to create or manage. |
@@ -288,7 +288,7 @@ The `Pipeline` resource schema includes the following fields:
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). |
+| `api-version` | `string` | The version of the Azure DevOps API to use (Currently supported: `7.2-preview.1`). |
 | `organization` | `string` | The name of the Azure DevOps organization. |
 | `project` | `string` | The name or ID of the project. |
 | `name` | `string` | The name of the pipeline. |
@@ -345,7 +345,7 @@ The `PipelinePermission` resource schema includes the following fields:
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `authenticationRefs.basicAuthRef` | `string` | Reference to the `BasicAuth` resource containing credentials. |
-| `api-version` | `string` | The version of the Azure DevOps API to use (e.g., `7.2-preview.1`). |
+| `api-version` | `string` | The version of the Azure DevOps API to use (Currently supported: `7.2-preview.1`). |
 | `organization` | `string` | The name of the Azure DevOps organization. |
 | `project` | `string` | The name or ID of the project. |
 | `resourceType` | `string` | The type of resource to authorize (e.g., `environment`, `queue`). |
