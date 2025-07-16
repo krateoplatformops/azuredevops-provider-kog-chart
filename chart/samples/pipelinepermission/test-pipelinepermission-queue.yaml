@@ -1,7 +1,7 @@
 apiVersion: azuredevops.kog.krateo.io/v1alpha1
 kind: PipelinePermission
 metadata:
-  name: test-pp-agentpool
+  name: test-pp-queue
   namespace: adp
   annotations:
     krateo.io/connector-verbose: "true"
