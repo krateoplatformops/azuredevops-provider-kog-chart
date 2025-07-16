@@ -47,6 +47,14 @@ paths:
           required: true
           schema:
             type: string
+            enum:
+              - repository
+              - environment
+              - queue
+              - teamproject
+              - endpoint
+              - variablegroup
+              - securefile
         - name: resourceId
           in: path
           description: Resource ID (e.g., pipeline ID, repository ID)
@@ -97,6 +105,14 @@ paths:
         required: true
         schema:
           type: string
+          enum:
+            - repository
+            - environment
+            - queue
+            - teamproject
+            - endpoint
+            - variablegroup
+            - securefile
       - name: resourceId
         in: path
         required: true

@@ -59,3 +59,20 @@ The PATCH operation is used in the RestDefinition `pipelinepermission` for the `
 +       - true          # Only true allowed in the CR
 +       default: true   # Default value is true
 ```
+
+An `enum` has been added to the `resourceType` field for both the GET and PATCH operations:
+```diff
+  - name: resourceType
+    in: path
+    required: true
+    schema:
+      type: string
++     enum:
++       - repository
++       - environment
++       - queue
++       - teamproject
++       - endpoint
++       - variablegroup
++       - securefile
+```
