@@ -1,7 +1,7 @@
 apiVersion: azuredevops.kog.krateo.io/v1alpha1
 kind: GitRepository
 metadata:
-  name: test-gitrepository-kog-2-1
+  name: test-gitrepository-kog-2-2
   namespace: adp
   annotations:
     krateo.io/connector-verbose: "true"
@@ -13,7 +13,7 @@ spec:
   organization: "krateo-kog"                      # Name of the Azure DevOps organization
   projectId: "test-project-1-classic"             # ID or name of the project
 
-  name: "test-gitrepository-kog-2-1"              # Name of the repository to create or manage  
+  name: "test-gitrepository-kog-2-2"              # Name of the repository to create or manage  
   defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
 
   # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository
