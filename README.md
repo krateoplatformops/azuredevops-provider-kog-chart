@@ -365,6 +365,8 @@ The `PipelinePermission` resource schema includes the following fields:
 | `pipelines.id` | `integer` | The ID of the pipeline to grant permission to. |
 | `pipelines.authorized` | `boolean` | Set to `true` to grant permission. Defaults to `true`. Setting to `false` is not allowed. |
 
+Note: in the case of managing a `PipelinePermission` for an Agent Pool, the `resourceType` should be set to `queue`.
+
 #### PipelinePermission example CR
 
 An example of a `PipelinePermission` resource is:
