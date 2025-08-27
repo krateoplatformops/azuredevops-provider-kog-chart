@@ -115,8 +115,8 @@ You can check the status of the RestDefinitions with the following commands:
 
 ```sh
 kubectl get restdefinitions.ogen.krateo.io --all-namespaces | awk 'NR==1 || /azuredevops/'
-
 ```
+
 You should see output similar to this:
 ```sh
 NAMESPACE       NAME                                      READY   AGE
