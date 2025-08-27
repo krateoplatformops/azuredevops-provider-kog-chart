@@ -9,6 +9,7 @@ This provider allows you to manage [Azure DevOps resources](https://azure.micros
 - [Requirements](#requirements)
 - [How to install](#how-to-install)
 - [Use in parallel with Krateo Azure DevOps Provider (classic)](#use-in-parallel-with-krateo-azure-devops-provider-classic)
+  - [One-way retro-compatibility](#one-way-retro-compatibility)
   - [Helm Lookup functions example](#helm-lookup-functions-example)
 - [Supported resources](#supported-resources)
   - [GitRepository](#gitrepository)
