@@ -1,4 +1,4 @@
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: GitRepository
 metadata:
   name: test-gitrepository-kog-1-4
