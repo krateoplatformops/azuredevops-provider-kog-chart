@@ -34,8 +34,8 @@ Version: 7.2-preview.1
 
 The schema for the request body of the `create` operation has been modified to include additional fields not documented in the original OpenAPI Specification (OAS) but required for a successful operation (`configuration.repository` and `configuration.path`).
 
-
-Note: Build Definitions are used in order to perform `update` and `delete` operations which are not available for Pipelines.Build Definitions use version 7.2-preview.7
+Note: Build Definitions are used in order to perform `update` and `delete` operations which are not available for Pipelines.
+Build Definitions use version 7.2-preview.7.
 
 ## `PipelinePermission`
 

@@ -43,23 +43,23 @@ paths:
         required: true
         schema:
           type: string
-      - name: orderBy
-        in: query
-        description: A sort expression. Defaults to "name asc"
-        schema:
-          type: string
-      - name: $top
-        in: query
-        description: The maximum number of pipelines to return
-        schema:
-          type: integer
-          format: int32
-      - name: continuationToken
-        in: query
-        description: "A continuation token from a previous request, to retrieve the\
-          \ next page of results"
-        schema:
-          type: string
+      #- name: orderBy
+      #  in: query
+      #  description: A sort expression. Defaults to "name asc"
+      #  schema:
+      #    type: string
+      #- name: $top
+      #  in: query
+      #  description: The maximum number of pipelines to return
+      #  schema:
+      #    type: integer
+      #    format: int32
+      #- name: continuationToken
+      #  in: query
+      #  description: "A continuation token from a previous request, to retrieve the\
+      #    \ next page of results"
+      #  schema:
+      #    type: string
       - name: api-version
         in: query
         description: Version of the API to use.  This should be set to '7.2-preview.1'

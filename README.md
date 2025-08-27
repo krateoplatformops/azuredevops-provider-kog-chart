@@ -3,9 +3,6 @@
 This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo Azure DevOps Provider KOG leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider).
 This provider allows you to manage [Azure DevOps resources](https://azure.microsoft.com/en-us/products/devops) such as `gitrepositories`, `pipelines`, and `pipelinepermissions` using the Krateo platform.
 
-> [!NOTE]  
-> This chart is still in development and not yet ready for production use.
-
 ## Summary
 
 - [Summary](#summary)
@@ -114,16 +111,27 @@ helm install azuredevops-provider-kog krateo/azuredevops-provider-kog
 > [!NOTE]
 > Due to the nature of the providers leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider), this chart will install a set of RestDefinitions that will in turn trigger the deployment of a number of controllers in the cluster. These controllers need to be up and running before you can create or manage resources using the Custom Resources (CRs) defined by this provider. This may take a few minutes after the chart is installed.
 
-You can check the status of the controllers by running the following commands:
+You can check the status of the RestDefinitions with the following commands:
+
 ```sh
-until kubectl get deployment azuredevops-provider-kog-<RESOURCE>-controller -n <YOUR_NAMESPACE> &>/dev/null; do
-  echo "Waiting for <RESOURCE> controller deployment to be created..."
-  sleep 5
-done
-kubectl wait deployments azuredevops-provider-kog-<RESOURCE>-controller --for condition=Available=True --namespace <YOUR_NAMESPACE> --timeout=300s
+kubectl get restdefinitions.ogen.krateo.io --all-namespaces
+```
+You should see output similar to this:
+```sh
+NAMESPACE       NAME                           READY   AGE
+krateo-system   github-provider-collaborator   False   24s
+krateo-system   github-provider-repo           False   24s
+krateo-system   github-provider-runnergroup    False   24s
+krateo-system   github-provider-teamrepo       False   24s
+krateo-system   github-provider-workflow       False   24s
 ```
 
-Make sure to replace `<RESOURCE>` to one of the resources supported by the chart, such as `pipelinepermission`, `pipeline`, `gitrepository`, and `<YOUR_NAMESPACE>` with the namespace where you installed the chart.
+You can also wait for a specific RestDefinition to be ready with a command like this:
+```sh
+kubectl wait restdefinitions.ogen.krateo.io github-provider-repo --for condition=Ready=True --namespace krateo-system --timeout=300s
+```
+
+Note that the names of the RestDefinitions and the namespace where the RestDefinitions are installed may vary based on your configuration.
 
 ## Use "in parallel" with Krateo Azure DevOps Provider (classic)
 
@@ -165,7 +173,7 @@ In this case the context is a Helm chart, so the `lookup` function is used to re
 {{- $pipeline := lookup "azuredevops.krateo.io/v1alpha1" "Pipeline" .Release.Namespace (.Values.pipeline.name | lower) }}
 {{- if and $pipeline $pipeline.status $pipeline.status.id }}
 
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: PipelinePermission
 spec:
   project: "{{ $project.status.id }}"         # Dynamically retrieve the project ID
@@ -196,7 +204,7 @@ This chart supports the following resources and operations:
 > [!NOTE]  
 > 🟡 *"Partial"* means that the operation is only partially supported — for example, only some fields are implemented.
 
-The resources listed above are Custom Resources (CRs) defined in the `azuredevops.kog.krateo.io` API group. They are used to manage Azure DevOps resources in a Kubernetes-native way, allowing you to create, update, and delete Azure DevOps resources using Kubernetes manifests.
+The resources listed above are Custom Resources (CRs) defined in the `azuredevops.ogen.krateo.io` API group. They are used to manage Azure DevOps resources in a Kubernetes-native way, allowing you to create, update, and delete Azure DevOps resources using Kubernetes manifests.
 
 You can find example resources for each supported resource type in the `/samples` folder of the chart.
 These examples Custom Resources (CRs) show every possible field that can be set in the resource based reflected on the Custom Resource Definitions (CRDs) that are generated and installed in the cluster.
@@ -302,7 +310,7 @@ The `Pipeline` resource schema includes the following fields:
 
 An example of a `Pipeline` resource is:
 ```yaml
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: Pipeline
 metadata:
   name: test-pipeline-kog-1
@@ -367,11 +375,13 @@ The `PipelinePermission` resource schema includes the following fields:
 
 Note: in the case of managing a `PipelinePermission` for an Agent Pool, the `resourceType` should be set to `queue`.
 
-#### PipelinePermission example CR
+Note: if you set `allPipelines.authorized` to `true`, and also specify individual pipelines in the `pipelines` array, there will be the following behavior:
+- All pipelines in the project will be authorized to use the resource.
+- If you remove this "No restrictions - Any pipeline may use this resource" manually in the Azure DevOps UI, only the pipelines specified in the `pipelines` array will remain authorized.
 
 An example of a `PipelinePermission` resource is:
 ```yaml
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: PipelinePermission
 metadata:
   name: test-pp
@@ -473,7 +483,7 @@ They also define the operations that can be performed on those resources. Once t
 
 - **/assets** folder: Contains the selected OpenAPI Specification files for the Azure DevOps REST API.
 
-- **/samples** folder: Contains example resources for each supported resource type as seen in this README. These examples demonstrate how to create and manage Azure DevOps resources using the Krateo Azure DevOps Provider KOG.
+- **/samples** folder: Contains example resources for each supported resource type as seen in this README. These examples demonstrate how to create and manage Azure DevOps resources using the Krateo Azure DevOps Provider KOG. The folder contains also example of wrong configurations that can be useful for troubleshooting. The latter annotated with comments explaining the errors.
 
 - **Deployment**: Deploys a [plugin](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin) that is used as a proxy to resolve some inconsistencies of the Azure DevOps REST API. The specific endpoins managed by the plugin are described in the [plugin README](https://github.com/krateoplatformops/azuredevops-rest-dynamic-controller-plugin/blob/main/README.md)
 

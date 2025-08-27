@@ -10,18 +10,16 @@ spec:
     name: my-pipelinepermission-config
     namespace: default 
   
-  api-version: 7.2-preview.1
-  
   organization: "krateo-kog"
-  project: "test-project-1"
+  project: "project-1-classic"
   resourceType: "queue" 
-  resourceId: "38"
+  resourceId: "417"
 
   allPipelines:
-    authorized: false
+    authorized: true
   pipelines:
-    - id: 6
+    - id: 79
       authorized: true
-    - id: 4
+    - id: 80
       authorized: true
 

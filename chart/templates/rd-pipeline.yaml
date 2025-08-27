@@ -1,20 +1,18 @@
 {{- if .Values.restdefinitions.pipeline.enabled }}
 kind: RestDefinition
-apiVersion: swaggergen.krateo.io/v1alpha1
+apiVersion: ogen.krateo.io/v1alpha1
 metadata:
   name: {{ .Release.Name }}-pipeline
 spec:
   oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-pipeline/pipeline.yaml
-  resourceGroup: azuredevops.kog.krateo.io
+  resourceGroup: azuredevops.ogen.krateo.io
   resource: 
     kind: Pipeline
     identifiers:
+    - name # Within the same project, the name of a Pipeline must be unique, so we can use it as an identifier.
+    additionalStatusFields:
     - id
     - url
-    - name
-    #- _links.self.web        # not working
-    #- _links.self.web.href   # not working
-    additionalStatusFields:
     - revision
     verbsDescription:
     - action: create
@@ -32,4 +30,10 @@ spec:
     - action: delete
       method: DELETE
       path: /api/{organization}/{project}/pipelines/{id} # plugin endpoint
+    configurationFields:
+    - fromOpenAPI:
+        name: api-version
+        in: query
+      fromRestDefinition:
+        actions: ["*"] # star means all actions set in the verbsDescription above
 {{ end }}
