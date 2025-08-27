@@ -130,7 +130,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResourcePipelinePermissionsTrueOnly'
+              $ref: '#/components/schemas/ResourcePipelinePermissionsTrueOnlyNoAuthorizationDetails'
         required: true
       responses:
         "200":
@@ -216,7 +216,13 @@ components:
           type: string
           format: date-time
       description: ""
-    PermissionTrueOnly:
+    PermissionNoAuthorizationDetails:
+      type: object
+      properties:
+        authorized:
+          type: boolean
+      description: ""
+    PermissionTrueOnlyNoAuthorizationDetails:
       type: object
       properties:
         authorized:
@@ -224,11 +230,11 @@ components:
           enum:
           - true # Only true allowed in the CR
           default: true
-        authorizedBy:
-          $ref: '#/components/schemas/IdentityRef'
-        authorizedOn:
-          type: string
-          format: date-time
+        #authorizedBy:
+        #  $ref: '#/components/schemas/IdentityRef'
+        #authorizedOn:
+        #  type: string
+        #  format: date-time
       description: "Schema for a permission that only allows true.  This is used to force a permission to be true in the CR."
     PipelinePermission:
       properties:
@@ -238,14 +244,14 @@ components:
       description: ""
       allOf:
       - $ref: '#/components/schemas/Permission'
-    PipelinePermissionTrueOnly:
+    PipelinePermissionTrueOnlyNoAuthorizationDetails:
       properties:
         id:
           type: integer
           format: int32
       description: ""
       allOf:
-      - $ref: '#/components/schemas/PermissionTrueOnly'
+      - $ref: '#/components/schemas/PermissionTrueOnlyNoAuthorizationDetails'
     PipelineProcessResources:
       type: object
       properties:
@@ -297,7 +303,7 @@ components:
           type: string
           description: Type of the resource.
       description: ""
-    ResourcePipelinePermissions:
+    ResourcePipelinePermissions: # response body of the get and patch operations
       type: object
       properties:
         allPipelines:
@@ -309,17 +315,17 @@ components:
         resource:
           $ref: '#/components/schemas/Resource'
       description: ""
-    ResourcePipelinePermissionsTrueOnly:
+    ResourcePipelinePermissionsTrueOnlyNoAuthorizationDetails: # request body of the patch operation
       type: object
       properties:
         allPipelines:
-          $ref: '#/components/schemas/Permission'
+          $ref: '#/components/schemas/PermissionNoAuthorizationDetails'
         pipelines:
           type: array
           items:
-            $ref: '#/components/schemas/PipelinePermissionTrueOnly'
-        resource:
-          $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/PipelinePermissionTrueOnlyNoAuthorizationDetails'
+        #resource:
+        #  $ref: '#/components/schemas/Resource'
       description: ""
   parameters:
     api-Version-preview.1:

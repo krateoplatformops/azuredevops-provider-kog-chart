@@ -19,6 +19,6 @@ spec:
     authorized: true
 
   pipelines:
-    - id: 79
+    - id: 81
       # authorized: true is not required to be set here, since it is already the default value (and `authorized: false` is not allowed)
-    - id: 80
+    - id: 82

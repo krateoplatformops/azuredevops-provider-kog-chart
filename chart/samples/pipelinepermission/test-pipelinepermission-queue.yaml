@@ -16,10 +16,10 @@ spec:
   resourceId: "417"
 
   allPipelines:
-    authorized: true
+    authorized: false
   pipelines:
-    - id: 79
+    - id: 81
       authorized: true
-    - id: 80
+    - id: 82
       authorized: true
 
