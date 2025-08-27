@@ -1,0 +1,28 @@
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
+kind: GitRepositoryConfiguration
+metadata:
+  name: my-gitrepository-config
+  namespace: default
+spec:
+  authentication:
+    basic:
+      usernameRef:                  # Any value can be used as username as official Azure DevOps OAS suggests (field not used), but the secret and key must be set.
+        name: azuredevops-secret
+        namespace: default
+        key: token
+      passwordRef:
+        name: azuredevops-secret
+        namespace: default
+        key: token
+  configuration:
+    query:
+      create:
+        api-version: "7.2-preview.2"
+      delete:
+        api-version: "7.2-preview.2"
+      findby:
+        api-version: "7.2-preview.2"
+      get:
+        api-version: "7.2-preview.2"
+      update:
+        api-version: "7.2-preview.2"

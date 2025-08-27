@@ -1,24 +1,24 @@
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: PipelinePermission
 metadata:
-  name: test-pp
-  namespace: adp
+  name: test-pipelinepermission-kog-environment
+  namespace: default
   annotations:
     krateo.io/connector-verbose: "true"
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth
-  api-version: 7.2-preview.1
+  configurationRef:                     # Reference to a PipelinePermissionConfiguration CR that contains the authentication information.
+    name: my-pipelinepermission-config
+    namespace: default
   
   organization: "krateo-kog"
-  project: "test-project-1-classic"
+  project: "project-1-classic"
   resourceType: "environment" 
-  resourceId: "7"
+  resourceId: "39"
 
   allPipelines:
     authorized: true
 
   pipelines:
-    - id: 14
-      # authorized: true is not required, since it is the default value (authorized: false is not allowed)
-    - id: 15
+    - id: 81
+      # authorized: true is not required to be set here, since it is already the default value (and `authorized: false` is not allowed)
+    - id: 82

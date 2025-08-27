@@ -65,6 +65,7 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
   - `defaultBranch`: `test-branch`
 - **Result**:
   - Error 400: `When specifying a 'defaultBranch' for a new repository, 'initialize' must be set to true`
+
 ---
 
 ### 2. Forked Repository Cases (Parent Repository Initialized)
@@ -76,24 +77,24 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
   - Parent repository is **initialized** but does **not** have a branch named `test-branch`.
 - **Input**:
   - `defaultBranch`: anything or omitted
-  - `sourceRef`: `test-branch`
+  - `sourceRef`: `refs/heads/test-branch-not-existing`
 - **Result**:
-  - **Error 400**: `SourceRef 'refs/heads/test-branch'` does not exist in parent repository.
+  - **Error 400**: `SourceRef 'refs/heads/test-branch-not-existing'` does not exist in parent repository.
 
 ---
 
 #### Case 2.2: Forked Repo With Existing Default Branch in Parent
 - **Preconditions**:
-  - Parent repository is **initialized** and has a branch named `test-branch`.
+  - Parent repository is **initialized** and has a branch named `test-branch` (either as default or non-default).
 - **Input**:
   - `defaultBranch`: `test-branch` (which exists in parent repo)
   - `sourceRef`: *includes* `test-branch` or *omitted*
 - **Result**:
-  - Repository is forked with `test-branch` as the **default branch** (git history is copied).
+  - Repository is forked with `test-branch` as the **default branch** (git history is copied). Note that in the parent repo, `test-branch` can be the default branch or any other branch.
 
 ---
 
-#### Case 2.3: Forked Repo With Nonexistent Default Branch (Fallback to Parent Default)
+#### Case 2.3: Forked Repo With Nonexistent Default Branch set (Fallback to Parent Default)
 - **Preconditions**:
   - Parent repository is **initialized** and has a default branch (e.g., `main`) but does **not** have a branch named `test-branch`.
 - **Input**:
@@ -102,13 +103,15 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
 - **Result**:
   - Repository is forked with the **default branch of the parent** repository (e.g., `main`) as the default branch (git history is copied).
   - Status code: **202 Accepted**
-  - Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. 
+  - Notes: In the context of the `gitrepository-controller`, the controller awaits the manual creation of the `test-branch` by the user. 
   The Kubernetes resource will be in a `Ready: False` state until the user creates the `test-branch` on Azure DevOps.
-  After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
+  After the user manually creates the `test-branch` on the GitRepository (not in the parent), the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
 
 ---
 
 ### 3. Forked Repository Cases (Parent Repository Not Initialized)
+
+Note: it is not recommended to fork from uninitialized repositories.
 
 > In fork scenarios, the `initialize` field is **ignored**.
 
@@ -144,8 +147,8 @@ Files are named after some of the cases described below, e.g., [`gitrepository_2
   - Repository is forked in an **uninitialized** state.
   - No branches are created.
   - Status code: **202 Accepted**
-- Notes: In the context of the `gitrepository-controller`, the controller awaits creation of the `test-branch` by the user. 
-The Kubernetes resource will be in a `Ready: False` state until the user creates the `test-branch` on Azure DevOps.
-After the user creates the `test-branch`, the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
+  - Notes: In the context of the `gitrepository-controller`, the controller awaits the manual creation of the `test-branch` by the user. 
+  The Kubernetes resource will be in a `Ready: False` state until the user creates the `test-branch` on Azure DevOps.
+  After the user manually creates the `test-branch` on the GitRepository (not in the parent), the `gitrepository-controller` will update the repository to set `test-branch` as the default branch. Finally, the GitRepository CR will become `Ready: True`.
 
 ---

@@ -98,8 +98,10 @@ tolerations: []
 affinity: {}
 
 env:
-  - name: BUILD_DEFINITIONS_API_VERSION   # Build definitions are used under the hood by the plugin for some operations of the Pipeline resource.
+  - name: BUILD_DEFINITIONS_API_VERSION # Build definitions are used under the hood by the plugin for some operations of the Pipeline resource.
     value: "7.2-preview.7"
+  - name: GIT_PUSHES_API_VERSION        # Git pushes are used under the hood by the plugin for some operations of the GitRepository resource.
+    value: "7.2-preview.3"
 
 livenessProbe:
   httpGet:

@@ -1,23 +1,25 @@
 {{- if .Values.restdefinitions.gitrepository.enabled }}
 kind: RestDefinition
-apiVersion: swaggergen.krateo.io/v1alpha1
+apiVersion: ogen.krateo.io/v1alpha1
 metadata:
   name: {{ .Release.Name }}-gitrepository
 spec:
   oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-gitrepository/gitrepository.yaml
-  resourceGroup: azuredevops.kog.krateo.io
+  resourceGroup: azuredevops.ogen.krateo.io
   resource: 
     kind: GitRepository
     identifiers:
+    - name # Within the same project, the name of a GitRepository must be unique, so we can use it as an identifier.
+    additionalStatusFields:
     - id
     - remoteUrl
     - sshUrl
     - url
-    - name
+    - defaultBranch
     verbsDescription:
     - action: create
       method: POST
-      path: /api/{organization}/{projectId}/git/repositories
+      path: /api/{organization}/{projectId}/git/repositories # plugin endpoint
     - action: findby
       method: GET
       path: /{organization}/{projectId}/_apis/git/repositories
@@ -30,4 +32,10 @@ spec:
     - action: delete
       method: DELETE
       path: /{organization}/{projectId}/_apis/git/repositories/{id}
+    configurationFields:
+    - fromOpenAPI:
+        name: api-version
+        in: query
+      fromRestDefinition:
+        actions: ["*"] # star means all actions set in the verbsDescription above
 {{ end }}

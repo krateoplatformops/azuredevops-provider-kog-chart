@@ -1,17 +1,19 @@
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: GitRepository
 metadata:
   name: test-gitrepository-kog-1-2
-  namespace: adp
+  namespace: default
   annotations:
     krateo.io/connector-verbose: "true"
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
-  api-version: "7.2-preview.2"                    # Version of the API to use
+  configurationRef:                     # Reference to a GitRepositoryConfiguration CR that contains the authentication information.
+    name: my-gitrepository-config
+    namespace: default 
 
-  organization: "krateo-kog"                      # Name of the Azure DevOps organization
-  projectId: "test-project-1-classic"             # ID or name of the project
+  organization: "krateo-kog"            # Name of the Azure DevOps organization
+  projectId: "project-1-classic"        # ID or name of the project
 
-  name: "test-gitrepository-kog-1-2"              # Name of the repository to create or manage  
-  initialize: true                                # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.
+  name: "test-gitrepository-kog-1-2"    # Name of the repository to create or manage  
+  # Note that if you specify a default branch in a non-forked repository, the repository must be initialized with a first commit (and therefore `initialize` must be set to `true`), otherwise the repository will not be created successfully.
+  # When forking a repository, `initialize` is ignored.
+  initialize: true                      # Whether to initialize the repository with a first commit. If set to true, the repository will be initialized with a first commit.

@@ -34,8 +34,8 @@ Version: 7.2-preview.1
 
 The schema for the request body of the `create` operation has been modified to include additional fields not documented in the original OpenAPI Specification (OAS) but required for a successful operation (`configuration.repository` and `configuration.path`).
 
-
-Note: Build Definitions are used in order to perform `update` and `delete` operations which are not available for Pipelines.Build Definitions use version 7.2-preview.7
+Note: Build Definitions are used in order to perform `update` and `delete` operations which are not available for Pipelines.
+Build Definitions use version 7.2-preview.7.
 
 ## `PipelinePermission`
 
@@ -44,13 +44,13 @@ Version: 7.2-preview.1
 Since the Azure DevOps REST API returns only the pipelines that are authorized for the user, the `PipelinePermission` resource of this provider allows you to set the `authorized` field of each `pipeline` in the `pipelines` array to `true` only.
 Therefore, the OpenAPI Specification (OAS) of the `PipelinePermission` resource has been modified to restrict the `authorized` field to only accept `true` and set it as the default value.
 This is done by defining a custom schema named `PermissionTrueOnly`.
-In addition, the `ResourcePipelinePermissionsTrueOnly` and `PipelinePermissionTrueOnly` schemas are defined.
-This is done to address the PATCH operation defined in the OAS.
+In addition, the `ResourcePipelinePermissionsTrueOnlyNoAuthorizationDetails` and `PipelinePermissionTrueOnlyNoAuthorizationDetails` schemas are defined.
+This is done to address the PATCH operation defined in the OAS (reducing the fields of the request body).
 The PATCH operation is used in the RestDefinition `pipelinepermission` for the `create` and `update` operations.
 
 ```diff
 - Permission:
-+ PermissionTrueOnly:
++ PermissionTrueOnlyNoAuthorizationDetails:
     type: object
     properties:
       authorized:
@@ -58,6 +58,11 @@ The PATCH operation is used in the RestDefinition `pipelinepermission` for the `
 +       enum:
 +       - true          # Only true allowed in the CR
 +       default: true   # Default value is true
+-       authorizedBy:
+-         $ref: '#/components/schemas/IdentityRef'
+-       authorizedOn:
+-         type: string
+-         format: date-time
 ```
 
 An `enum` has been added to the `resourceType` field for both the GET and PATCH operations:

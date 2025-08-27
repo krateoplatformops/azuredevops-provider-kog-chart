@@ -1,17 +1,17 @@
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: GitRepository
 metadata:
   name: test-gitrepository-kog-2-1
-  namespace: adp
+  namespace: default
   annotations:
     krateo.io/connector-verbose: "true"
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
-  api-version: "7.2-preview.2"                    # Version of the API to use
+  configurationRef:                               # Reference to a GitRepositoryConfiguration CR that contains the authentication information.
+    name: my-gitrepository-config
+    namespace: default
 
   organization: "krateo-kog"                      # Name of the Azure DevOps organization
-  projectId: "test-project-1-classic"             # ID or name of the project
+  projectId: "project-1-classic"                  # ID or name of the project
 
   name: "test-gitrepository-kog-2-1"              # Name of the repository to create or manage  
   defaultBranch: "refs/heads/test-branch"         # Default branch for the repository, can be omitted if you want to use the default branch set by Azure DevOps or the default branch of the parent repository if you are forking a repository.
@@ -19,12 +19,15 @@ spec:
   # Fork-related fields: these fields are needed only if the repository to be created is a fork of another repository
   # These fields should be omitted if you want to create a new repository instead of forking an existing one.
   project: 
-    id: 11790bc5-82bd-4cdc-b6a6-47bcb7187051      # ID of the project where the repository will be created
+    id: 99837031-4e4e-4753-9a47-73fcc4cba766      # ID of the project where the repository will be created (id of the project set in 'projectId' above)
   parentRepository:
-    id: "58877fa0-7bd2-4f23-959a-7e276d0ee87c"    # ID of the parent repository to fork
+    id: "5605b0ba-e2fa-4aab-af0b-0888321b3a08"    # ID of the parent repository to fork
     project:
-      id: "11790bc5-82bd-4cdc-b6a6-47bcb7187051"  # ID of the parent repository's project
+      id: "99837031-4e4e-4753-9a47-73fcc4cba766"  # ID of the parent repository's project
 
   sourceRef: "refs/heads/test-branch-not-existing"
   # omitting sourceRef will copy all branches from parent 
   # assignin a non-existing branch to sourceRef will result in an error
+
+  # Note that this example will fail: the branch 'test-branch-not-existing' does not exist in the parent repository
+  # (HTTP/1.1 400 Bad Request - SourceRef 'refs/heads/test-branch-not-existing' does not exist in parent repository '5605b0ba-e2fa-4aab-af0b-0888321b3a08')
