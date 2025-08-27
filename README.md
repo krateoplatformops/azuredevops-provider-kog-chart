@@ -1,5 +1,7 @@
 # Krateo Azure DevOps Provider KOG
 
+***KOG***: (*Krateo Operator Generator*)
+
 This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo Azure DevOps Provider KOG leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider).
 This provider allows you to manage [Azure DevOps resources](https://azure.microsoft.com/en-us/products/devops) such as `gitrepositories`, `pipelines`, and `pipelinepermissions` using the Krateo platform.
 
@@ -521,9 +523,14 @@ Currently, the supported configuration resources are:
 - `PipelinePermissionConfiguration`
 
 These configuration resources are used to store the authentication information (i.e., reference to the Kubernetes Secret containing the Azure DevOps PAT) and other configuration options for the resource type.
+
 You can find examples of these configuration resources in the `/samples/configs` folder of the chart.
+Note that in the case of this chart, the **configuration resources are not created automatically** during the installation of the chart, so you need to create them manually before creating any resources that reference them.
+
 Note that a single configuration resource can be used by multiple resources of the same type.
 For example, you can create a single `GitRepositoryConfiguration` resource and reference it in multiple `GitRepository` resources.
+
+As examplified in the examples in the folder `/samples/configs`, in the case of this provider, the configuration resources are used to specify the API versions to be used for each operation (create, update, delete, get, findby) for the specific resource type.
 
 ### values.yaml
 
