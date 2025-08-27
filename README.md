@@ -252,6 +252,7 @@ metadata:
 spec:
   configurationRef:                               # Reference to a GitRepositoryConfiguration CR that contains the authentication information.
     name: my-gitrepository-config
+    namespace: default
 
   organization: "krateo-kog"                      # name of the Azure DevOps organization
   projectId: "project-1-classic"                  # ID or name of the project
@@ -504,6 +505,10 @@ More details about the configuration resources in the [Configuration resources](
 ### Configuration resources
 
 Each resource type (e.g., `GitRepository`, `Pipeline`, `PipelinePermission`) requires a specific configuration resource (e.g., `GitRepositoryConfiguration`, `PipelineConfiguration`, `PipelinePermissionConfiguration`) to be created in the cluster.
+Currently, the supported configuration resources are:
+- `GitRepositoryConfiguration`
+- `PipelineConfiguration`
+- `PipelinePermissionConfiguration`
 These configuration resources are used to store the authentication information (i.e., reference to the Kubernetes Secret containing the Azure DevOps PAT) and other configuration options for the resource type.
 You can find examples of these configuration resources in the `/samples/configs` folder of the chart.
 Note that a single configuration resource can be used by multiple resources of the same type.

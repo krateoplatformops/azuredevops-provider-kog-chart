@@ -20,7 +20,7 @@ Therefore, currently, Krateo Azure DevOps Provider KOG **is not a drop-in replac
 ## Pre-requisites
 
 - You have a the [Krateo Azure DevOps Provider (classic)](https://github.com/krateoplatformops/azuredevops-provider) installed and properly configured in your cluster (including `ConnectorConfig`resource for authentication).
-- You have the [Krateo Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster (including configuration resources for authentication).
+- You have the [Krateo Azure DevOps Provider KOG](https://github.com/krateoplatformops/azuredevops-provider-kog-chart) installed and properly configured in your cluster (including configuration resources for authentication, see [Authentication](../README.md#authentication) and [Configuration](../README.md#configuration)).
 
 ## `GitRepository` migration example
 
@@ -35,7 +35,7 @@ kubectl api-resources | awk 'NR==1 || $1 == "gitrepositories"'
 Output:
 ```sh
 NAME                                SHORTNAMES   APIVERSION                            NAMESPACED   KIND
-gitrepositories                                  azuredevops.ogen.krateo.io/v1alpha1    true         GitRepository
+gitrepositories                                  azuredevops.ogen.krateo.io/v1alpha1   true         GitRepository
 gitrepositories                                  azuredevops.krateo.io/v1alpha1        false        GitRepository
 ```
 
@@ -56,7 +56,7 @@ spec:
   initialize: true  
 ```
 
-Note that the `GitRepository` resource is referecing a `ConnectorConfig` resource and a `Project` resource, which are both managed by the Krateo Azure DevOps Provider "classic" and considered pre-requisites for the `GitRepository` resource manged by the Krateo Azure DevOps Provider KOG.
+Note that the `GitRepository` resource is referecing a `ConnectorConfig` resource and a `Project` resource, which are both managed by the Krateo Azure DevOps Provider "classic".
 
 To ensure that the old version of the resource is not reconciled while you are migrating to the new version, you should set the `krateo.io/paused: true` annotation.
 You can do this by running the following commands:
@@ -117,9 +117,9 @@ metadata:
     krateo.io/connector-verbose: "true"           # Optional: to enable verbose logging
     krateo.io/deletion-policy: orphan             # Optional: to ensure the external resource is not deleted when the resource is deleted
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
-  api-version: "7.2-preview.2"                    # Version of the API to use
+  configurationRef:                               # Reference to a GitRepositoryConfiguration CR that contains the authentication information.
+    name: my-gitrepository-config
+    namespace: default
 
   organization: "krateo-kog"                      # Name of the Azure DevOps organization
   projectId: "project-1-classic"                  # ID or name of the project
@@ -147,9 +147,9 @@ spec:
 - projectRef:
 -   name: project-1-classic
 -   namespace: default
-+ authenticationRefs:
-+   basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
-+ api-version: "7.2-preview.2"                    # Version of the API to use
++ configurationRef:                               # Reference to a GitRepositoryConfiguration CR that contains the authentication information.
++   name: my-gitrepository-config
++   namespace: default
 
 + organization: "krateo-kog"                      # Name of the Azure DevOps organization
 + projectId: "project-1-classic"                  # ID or name of the project
@@ -212,7 +212,7 @@ kubectl api-resources | awk 'NR==1 || $1 == "pipelines"'
 Output:
 ```sh
 NAME                                SHORTNAMES   APIVERSION                            NAMESPACED   KIND
-pipelines                                        azuredevops.ogen.krateo.io/v1alpha1    true         Pipeline
+pipelines                                        azuredevops.ogen.krateo.io/v1alpha1   true         Pipeline
 pipelines                                        azuredevops.krateo.io/v1alpha1        false        Pipeline
 ```
 
@@ -238,8 +238,7 @@ spec:
     name: connectorconfig-sample
 ```
 
-Note that the `Pipeline` resource is referecing a `ConnectorConfig` resource, a `Project` resource, and a `GitRepository` resource, which are managed by the Krateo Azure DevOps Provider "classic" and considered pre-requisites for the `Pipeline` resource manged by the Krateo Azure DevOps Provider KOG.
-
+Note that the `Pipeline` resource is referecing a `ConnectorConfig` resource, a `Project` resource, and a `GitRepository` resource, which are managed by the Krateo Azure DevOps Provider "classic".
 Note that the `GitRepository` referenced in the example above is a `GitRepository` resource managed by the Krateo Azure DevOps Provider "classic". 
 However, the `Pipeline` resource managed by the Krateo Azure DevOps Provider KOG will work with both `GitRepository` resources managed by the Krateo Azure DevOps Provider "classic" and the Krateo Azure DevOps Provider KOG since it use the `id` of the repository as the reference.
 
@@ -299,7 +298,7 @@ You can find the schema in the specific section of the [README](../README.md#pip
 You can apply the following example:
 ```sh
 kubectl apply -f - <<EOF
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: Pipeline
 metadata:
   name: pipeline-1
@@ -308,10 +307,10 @@ metadata:
     krateo.io/connector-verbose: "true"           # Optional: to enable verbose logging
     krateo.io/deletion-policy: orphan             # Optional: to ensure the external resource is not deleted when the resource is deleted
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
+  configurationRef:                               # Reference to a PipelineConfiguration CR that contains the authentication information.
+    name: my-pipeline-config
+    namespace: default
   
-  api-version: "7.2-preview.1"                    # Version of the API to use
   organization: krateo-kog                        # Name of the Azure DevOps organization
   project: "project-1-classic"                    # ID or name of the project
   
@@ -329,7 +328,7 @@ EOF
 The following snippet shows the differences between the old and new `Pipeline` resources:
 ```diff
 - apiVersion: azuredevops.krateo.io/v1alpha1
-+ apiVersion: azuredevops.kog.krateo.io/v1alpha1
++ apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: Pipeline
 metadata:
   name: pipeline-1
@@ -351,10 +350,10 @@ spec:
 - connectorConfigRef:
 -  namespace: default
 -   name: connectorconfig-sample
-+ authenticationRefs:
-+   basicAuthRef: azure-devops-basic-auth          # Reference to a CR containing the basic authentication information.
-  
-+ api-version: "7.2-preview.1"                     # Version of the API to use
++ configurationRef:                               # Reference to a PipelineConfiguration CR that contains the authentication information.
++   name: my-pipeline-config
++   namespace: default
+
 + organization: krateo-kog                         # Name of the Azure DevOps organization
 + project: "project-1-classic"                     # ID or name of the project
   
@@ -381,7 +380,7 @@ In this case the context is a Helm chart, so the `lookup` function is used to re
 {{- $repository := lookup "azuredevops.krateo.io/v1alpha1" "GitRepository" .Release.Namespace (.Values.repository.name | lower) }}
 {{- if and $repository $repository.status $repository.status.id }}
 
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: Pipeline
 spec:
   project: "{{ $project.status.id }}"  # Dynamically retrieve the project ID
@@ -396,7 +395,7 @@ spec:
 
 You can check the new `Pipeline` resource managed by Krateo Azure DevOps Provider KOG by running the following command:
 ```sh
-kubectl get pipelines.azuredevops.kog.krateo.io pipeline-1 -n azuredevops-system
+kubectl get pipelines.azuredevops.ogen.krateo.io pipeline-1 -n azuredevops-system
 ```
 And the output should look like this:
 ```sh
@@ -417,7 +416,6 @@ Either you `CTRL+C` the previous command (that is hanging) and run the following
 kubectl annotate pipelines.azuredevops.krateo.io pipeline-1 --overwrite "krateo.io/paused=false"
 ```
 
-
 ## `PipelinePermission` migration example
 
 **Starting point**: `PipelinePermission` resource managed by Krateo Azure DevOps Provider "classic".
@@ -431,7 +429,7 @@ kubectl api-resources | awk 'NR==1 || $1 == "pipelinepermissions"'
 Output:
 ```sh
 NAME                                SHORTNAMES   APIVERSION                            NAMESPACED   KIND
-pipelinepermissions                              azuredevops.kog.krateo.io/v1alpha1    true         PipelinePermission
+pipelinepermissions                              azuredevops.ogen.krateo.io/v1alpha1   true         PipelinePermission
 pipelinepermissions                              azuredevops.krateo.io/v1alpha2        false        PipelinePermission
 ```
 
@@ -463,7 +461,7 @@ spec:
     name: connectorconfig-sample
 ```
 
-Note that the `PipelinePermission` resource is referecing a `ConnectorConfig` resource, a `Environment` resource, and a `Pipeline` resource, which are managed by the Krateo Azure DevOps Provider "classic" and considered pre-requisites for the `PipelinePermission` resource manged by the Krateo Azure DevOps Provider KOG.
+Note that the `PipelinePermission` resource is referecing a `ConnectorConfig` resource, a `Environment` resource, and a `Pipeline` resource, which are managed by the Krateo Azure DevOps Provider "classic".
 
 Note that the `Pipeline` referenced in the example above is a `Pipeline` resource managed by the Krateo Azure DevOps Provider "classic".  
 However, the `PipelinePermission` resource managed by the Krateo Azure DevOps Provider KOG will work with both `Pipeline` resources managed by the Krateo Azure DevOps Provider "classic" and the Krateo Azure DevOps Provider KOG since it use the `id` of the pipeline as the reference.
@@ -527,7 +525,7 @@ You can find the schema in the specific section of the [README](../README.md#pip
 You can apply the following example:
 ```sh
 kubectl apply -f - <<EOF
-apiVersion: azuredevops.kog.krateo.io/v1alpha1
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: PipelinePermission
 metadata:
   name: pipeline-permission-1
@@ -535,10 +533,10 @@ metadata:
   annotations:
     krateo.io/connector-verbose: "true"           # Optional: to enable verbose logging
 spec:
-  authenticationRefs:
-    basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
+  configurationRef:                               # Reference to a PipelinePermissionConfiguration CR that contains the authentication information.
+    name: my-pipelinepermission-config
+    namespace: default
   
-  api-version: "7.2-preview.1"                    # Version of the API to use
   organization: krateo-kog                        # Name of the Azure DevOps organization
   project: "project-1-classic"                    # ID or name of the project
   
@@ -557,7 +555,7 @@ EOF
 The following snippet shows the differences between the old and new `Pipeline` resources:
 ```diff
 - apiVersion: azuredevops.krateo.io/v1alpha2
-+ apiVersion: azuredevops.kog.krateo.io/v1alpha1
++ apiVersion: azuredevops.ogen.krateo.io/v1alpha1
 kind: PipelinePermission
 metadata:
   name: pipeline-permission-1
@@ -584,10 +582,10 @@ spec:
 -   namespace: default
 -   name: connectorconfig-sample
   
-+ authenticationRefs:
-+   basicAuthRef: azure-devops-basic-auth         # Reference to a CR containing the basic authentication information.
++ configurationRef:                               # Reference to a PipelinePermissionConfiguration CR that contains the authentication information.
++   name: my-pipelinepermission-config
++   namespace: default.
   
-+ api-version: "7.2-preview.1"                    # Version of the API to use
 + organization: krateo-kog                        # Name of the Azure DevOps organization
 + project: "project-1-classic"                    # ID or name of the project
   
