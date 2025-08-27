@@ -157,6 +157,15 @@ Note that the following resources:
 are supported by both the Krateo Azure DevOps Provider (classic) and the Krateo Azure DevOps Provider KOG and a migration guide is available in the [Migration guide](./docs/migration_guide.md) section of the `/docs` folder of this chart.
 The migration guide explains how to migrate from the Krateo Azure DevOps Provider (classic) resources to the Krateo Azure DevOps Provider KOG resources (for what concerns `GitRepository`, `Pipeline`, and `PipelinePermission`).
 
+### One-way retro-compatibility
+
+The Krateo Azure DevOps Provider KOG (this chart) resources can reference resources created by the Krateo Azure DevOps Provider (classic) but not vice-versa.
+
+For instance, a `PipelinePermission` resource created by this chart can reference an `Environment` resource created by the Krateo Azure DevOps Provider (classic) but a `PipelinePermission` resource created by the Krateo Azure DevOps Provider (classic) cannot reference a `Pipeline` resource created by this chart.
+
+This is due to the fact that the Krateo Azure DevOps Provider (classic) uses Kubernetes references (name and namespace) to reference other resources, while the Krateo Azure DevOps Provider KOG (this chart) uses Azure DevOps resource identifiers (e.g., `id`) to reference other resources.
+If you try to reference a resource created by this chart in a resource created by the Krateo Azure DevOps Provider (classic), the controller of the Krateo Azure DevOps Provider (classic) will not be able to find the referenced resource due to the different API group and version used by the Krateo Azure DevOps Provider KOG (this chart).
+
 ### Helm Lookup functions example
 
 An example of how to use the Helm `lookup` function to retrieve the project ID, environment ID and pipeline ID dynamically is shown below, in the context of the `PipelinePermission` resource.
