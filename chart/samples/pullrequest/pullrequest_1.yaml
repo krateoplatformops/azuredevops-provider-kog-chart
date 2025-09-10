@@ -1,0 +1,33 @@
+
+apiVersion: azuredevops.ogen.krateo.io/v1alpha1
+kind: PullRequest
+metadata:
+  name: sample-pullrequest-1
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  completionOptions:
+    #bypassPolicy: false
+    #bypassReason: ""
+    deleteSourceBranch: false
+    mergeCommitMessage: "Squash merge for feature X, test from Krateo"
+    mergeStrategy: squash
+    #transitionWorkItems: true
+  configurationRef:
+    name: sample-pullrequest-config
+    namespace: default
+  description: "Test PR description from Krateo"
+  isDraft: false
+  mergeOptions:
+    conflictAuthorshipCommits: true
+    detectRenameFalsePositives: false
+    disableRenames: false
+  organization: krateo-kog
+  project: project-1-classic
+  repositoryId: 5605b0ba-e2fa-4aab-af0b-0888321b3a08
+  sourceRefName: "refs/heads/branch-9"
+  status: abandoned
+  supportsIterations: true
+  targetRefName: "refs/heads/main"
+  title: "Test PR from Krateo"

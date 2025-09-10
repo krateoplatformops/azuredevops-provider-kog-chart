@@ -1,0 +1,10 @@
+{{- if .Values.restdefinitions.pullrequest.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-pullrequest
+data:
+  pullrequest.yaml: |
+{{ tpl (.Files.Get "assets/pullrequest.yaml") . | indent 4 }}
+{{ end }}
+

@@ -1,0 +1,61 @@
+{{- if .Values.restdefinitions.pullrequest.enabled }}
+kind: RestDefinition
+apiVersion: ogen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-pullrequest
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-pullrequest/pullrequest.yaml
+  resourceGroup: azuredevops.ogen.krateo.io
+  resource:
+    kind: PullRequest
+    identifiers:
+    - title
+    additionalStatusFields:
+    - closedBy
+    - closedDate
+    - createdBy
+    - creationDate
+    - isDraft
+    - labels
+    - mergeStatus
+    - pullRequestId
+    - remoteUrl
+    - reviewers
+    - sourceRefName
+    - status
+    - targetRefName
+    - url
+    verbsDescription:
+    - action: findby
+      method: GET
+      path: /api/{organization}/{project}/git/repositories/{repositoryId}/pullrequests # Plugin endpoint
+    - action: get
+      method: GET
+      path: /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests/{pullRequestId}
+    - action: create
+      method: POST
+      path: /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests
+    - action: update
+      method: PATCH
+      path: /api/{organization}/{project}/git/repositories/{repositoryId}/pullrequests/{pullRequestId} # Plugin endpoint
+    configurationFields:
+    # Common
+    - fromOpenAPI:
+        name: api-version
+        in: query
+      fromRestDefinition:
+        actions: ["*"]
+    # Get
+    - fromOpenAPI:
+        name: includeCommits
+        in: query
+      fromRestDefinition:
+        actions: 
+          - get
+    - fromOpenAPI:
+        name: includeWorkItemRefs
+        in: query
+      fromRestDefinition:
+        actions: 
+          - get
+{{ end }}

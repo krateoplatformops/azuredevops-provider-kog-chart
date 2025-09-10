@@ -129,3 +129,5 @@ restdefinitions:
     enabled: true
   pipeline:
     enabled: true
+  pullrequest:
+    enabled: true
