@@ -5,10 +5,10 @@ Note that the changes are made to comply with some requirements of the Krateo Re
 
 ## Summary
 
-- [Summary](#summary)
 - [GitRepository](#gitrepository)
 - [Pipeline](#pipeline)
 - [PipelinePermission](#pipelinepermission)
+- [PullRequest](#pullrequest)
 
 ## `GitRepository`
 
@@ -86,24 +86,7 @@ An `enum` has been added to the `resourceType` field for both the GET and PATCH 
 
 Version: 7.2-preview.2
 
-- Removed some properties from the `GitPullRequest` schema (used for response bodies) that were deemed not important and caused issues with the oasgen-provider.
-- Removed some query parameters or fields in bodies that were deemed not important or that caused issues with the oasgen-provider.
-
-
-
-
-In the GET
-/{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests
-
-
-changed the query parameters, removing the prefix "searchCriteria."
-So for example "searchCriteria.status" became just "status"
-
-
-
-
-changed to '201': instead of '200' in the create pull request endpoint
-original oas had '200' but the actual response code is '201 Created'
-
-
-
+- Commented out some properties from the `GitPullRequest` schema (used for response bodies) that were deemed not important and caused issues with the oasgen-provider (e.g., circular dependencies).
+- Commented out some query parameters or fields in bodies that were deemed not important or that caused issues with the oasgen-provider.
+- The response status code for the create pull request endpoint was updated from `200` to `201 Created` to reflect the actual behavior of the API, as the original OAS incorrectly specified `200`.
+- Created new schemas for request bodies (`CreatePullRequestReq` and `UpdatePullRequestReq`), to ensure that only the relevant fields are included when creating or updating a pull request.
