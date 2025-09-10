@@ -1,0 +1,1219 @@
+openapi: 3.0.1
+info:
+  title: Git - Pull Requests
+  description: ''
+  termsOfService: https://go.microsoft.com/fwlink/?LinkId=329770
+  contact:
+    name: nugetvss
+    email: nugetvss@microsoft.com
+  license:
+    name: MICROSOFT SOFTWARE LICENSE TERMS
+    url: https://go.microsoft.com/fwlink/?LinkId=329770
+  version: 7.2-preview
+externalDocs:
+  description: Azure DevOps REST APIs
+  url: https://aka.ms/azure-devops-rest-apis
+servers:
+- url: https://dev.azure.com/
+security:
+- accessToken: []
+tags:
+- name: Pull Requests
+  description: This API provides a way to create, retrieve, and modify pull requests.
+paths:
+  /api/{organization}/{project}/git/repositories/{repositoryId}/pullrequests: # plugin endpoint
+    get:
+      servers:
+        - url: {{ include "webServiceUrl" . }}
+          description: URL of the Azure DevOps RDC plugin
+      summary: Get pull requests
+      description: Retrieve all pull requests matching a specified criteria.
+      operationId: get-pullrequests
+      parameters:
+        - name: organization
+          in: path
+          description: Organization name
+          required: true
+          schema:
+            type: string
+        - name: project
+          in: path
+          description: Project name or ID
+          required: true
+          schema:
+            type: string
+        - name: repositoryId
+          in: path
+          description: Repository ID
+          required: true
+          schema:
+            type: string
+        - name: sourceRefName
+          in: query
+          description: Search for pull requests from this branch.
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Search for pull requests that are in this state. Defaults to Active if unset. (notSet, active, abandoned, completed, all)
+          required: true
+          schema:
+            type: string
+        - name: targetRefName
+          in: query
+          description: Search for pull requests into this branch.
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: query
+          description: Search pull requests that contain the specified text in the title.
+          required: true
+          schema:
+            type: string
+        - name: api-version
+          in: query
+          description: API version (e.g., 7.2-preview.2)
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Basic Auth header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of pull requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitPullRequest'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: string
+
+
+  /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests:
+    get:
+      tags:
+      - Pull Requests
+      description: 'Retrieve all pull requests matching a specified criteria.
+
+
+        Please note that description field will be truncated up to 400 symbols in the result.'
+      operationId: Pull Requests_Get Pull Requests
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: repositoryId
+        in: path
+        description: The repository ID of the pull request's target branch.
+        required: true
+        schema:
+          type: string
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      #- name: searchCriteria.sourceRefName
+      - name: sourceRefName
+        in: query
+        description: If set, search for pull requests from this branch.
+        schema:
+          type: string
+      #- name: searchCriteria.status
+      - name: status
+        in: query
+        description: If set, search for pull requests that are in this state. Defaults to Active if unset.
+        schema:
+          type: string
+          enum:
+          - notSet
+          - active
+          - abandoned
+          - completed
+          - all
+          x-ms-enum:
+            name: PullRequestStatus
+            values:
+            - value: notSet
+              description: Status not set. Default state.
+            - value: active
+              description: Pull request is active.
+            - value: abandoned
+              description: Pull request is abandoned.
+            - value: completed
+              description: Pull request is completed.
+            - value: all
+              description: Used in pull request search criteria to include all statuses.
+        x-ms-enum:
+          name: PullRequestStatus
+          values:
+          - value: notSet
+            description: Status not set. Default state.
+          - value: active
+            description: Pull request is active.
+          - value: abandoned
+            description: Pull request is abandoned.
+          - value: completed
+            description: Pull request is completed.
+          - value: all
+            description: Used in pull request search criteria to include all statuses.
+      #- name: searchCriteria.targetRefName
+      - name: targetRefName
+        in: query
+        description: If set, search for pull requests into this branch.
+        schema:
+          type: string
+      #- name: searchCriteria.title
+      - name: title
+        in: query
+        description: If set, filters pull requests that contain the specified text in the title.
+        schema:
+          type: string
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2' to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitPullRequest'
+    post:
+      tags:
+      - Pull Requests
+      description: Create a pull request.
+      operationId: Pull Requests_Create
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: repositoryId
+        in: path
+        description: The repository ID of the pull request's target branch.
+        required: true
+        schema:
+          type: string
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: supportsIterations
+        in: query
+        description: If true, subsequent pushes to the pull request will be individually reviewable. Set this to false for
+          large pull requests for performance reasons if this functionality is not needed.
+        schema:
+          type: boolean
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2' to use this version of the api.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The pull request to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePullRequestReq'
+        required: true
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitPullRequest'
+  /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests/{pullRequestId}:
+    get:
+      tags:
+      - Pull Requests
+      description: Retrieve a pull request.
+      operationId: Pull Requests_Get Pull Request
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: repositoryId
+        in: path
+        description: The repository ID of the pull request's target branch.
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        description: The ID of the pull request to retrieve.
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: includeCommits
+        in: query
+        description: If true, the pull request will be returned with the associated commits.
+        schema:
+          type: boolean
+      - name: includeWorkItemRefs
+        in: query
+        description: If true, the pull request will be returned with the associated work item references.
+        schema:
+          type: boolean
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2' to use this version of the api.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitPullRequest'
+    patch:
+      tags:
+      - Pull Requests
+      description: "Update a pull request\n\nThese are the properties that can be updated with the API:\n - Status\n - Title\n\
+        \ - Description (up to 4000 characters)\n - CompletionOptions\n - MergeOptions\n - AutoCompleteSetBy.Id\n - TargetRefName\
+        \ (when the PR retargeting feature is enabled)\n Attempting to update other properties outside of this list will either\
+        \ cause the server to throw an `InvalidArgumentValueException`,\n or to silently ignore the update."
+      operationId: Pull Requests_Update
+      parameters:
+      - name: organization
+        in: path
+        description: The name of the Azure DevOps organization.
+        required: true
+        schema:
+          type: string
+      - name: repositoryId
+        in: path
+        description: The repository ID of the pull request's target branch.
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        description: ID of the pull request to update.
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: project
+        in: path
+        description: Project ID or project name
+        required: true
+        schema:
+          type: string
+          x-ms-required: false
+        x-ms-required: false
+      - name: api-version
+        in: query
+        description: Version of the API to use.  This should be set to '7.2-preview.2' to use this version of the api.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The pull request content that should be updated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePullRequestReq'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitPullRequest'
+components:
+  schemas:
+    Change:
+      type: object
+      properties:
+        changeType:
+          type: string
+          description: The type of change that was made to the item.
+          enum:
+          - none
+          - add
+          - edit
+          - encoding
+          - rename
+          - delete
+          - undelete
+          - branch
+          - merge
+          - lock
+          - rollback
+          - sourceRename
+          - targetRename
+          - property
+          - all
+        item:
+          type: string
+          description: Current version.
+        newContent:
+          $ref: '#/components/schemas/ItemContent'
+        sourceServerItem:
+          type: string
+          description: Path of the item on the server.
+        url:
+          type: string
+          description: URL to retrieve the item.
+      description: ''
+    GitChange:
+      properties:
+        changeId:
+          type: integer
+          description: ID of the change within the group of changes.
+          format: int32
+        newContentTemplate:
+          $ref: '#/components/schemas/GitTemplate'
+        originalPath:
+          type: string
+          description: Original path of item if different from current path.
+      description: ''
+      allOf:
+      - $ref: '#/components/schemas/Change'
+    GitCommitRef:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        author:
+          $ref: '#/components/schemas/GitUserDate'
+        changes:
+          type: array
+          description: An enumeration of the changes included with the commit.
+          items:
+            $ref: '#/components/schemas/GitChange'
+        comment:
+          type: string
+          description: Comment or message of the commit.
+        commentTruncated:
+          type: boolean
+          description: Indicates if the comment is truncated from the full Git commit comment message.
+        commitId:
+          type: string
+          description: ID (SHA-1) of the commit.
+        committer:
+          $ref: '#/components/schemas/GitUserDate'
+        commitTooManyChanges:
+          type: boolean
+          description: Indicates that commit contains too many changes to be displayed
+        parents:
+          type: array
+          description: An enumeration of the parent commit IDs for this commit.
+          items:
+            type: string
+        push:
+          $ref: '#/components/schemas/GitPushRef'
+        remoteUrl:
+          type: string
+          description: Remote URL path to the commit.
+        statuses:
+          type: array
+          description: A list of status metadata from services and extensions that may associate additional information to
+            the commit.
+          items:
+            $ref: '#/components/schemas/GitStatus'
+        url:
+          type: string
+          description: REST URL for this resource.
+        workItems:
+          type: array
+          description: A list of workitems associated with this commit.
+          items:
+            $ref: '#/components/schemas/ResourceRef'
+      description: Provides properties that describe a Git commit and associated metadata.
+    GitForkRef:
+      properties:
+        repository:
+          $ref: '#/components/schemas/GitRepository'
+      description: Information about a fork ref.
+      allOf:
+      - $ref: '#/components/schemas/GitRef'
+    GitPullRequest:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        artifactId:
+          type: string
+          description: 'A string which uniquely identifies this pull request. To generate an artifact ID for a pull request,
+            use this template: ```vstfs:///Git/PullRequestId/{projectId}/{repositoryId}/{pullRequestId}```'
+        autoCompleteSetBy:
+          $ref: '#/components/schemas/IdentityRef'
+        closedBy:
+          $ref: '#/components/schemas/IdentityRef'
+        closedDate:
+          type: string
+          description: The date when the pull request was closed (completed, abandoned, or merged externally).
+          format: date-time
+        codeReviewId:
+          type: integer
+          description: The code review ID of the pull request. Used internally.
+          format: int32
+        commits:
+          type: array
+          description: The commits contained in the pull request.
+          items:
+            $ref: '#/components/schemas/GitCommitRef'
+        completionQueueTime:
+          type: string
+          description: The most recent date at which the pull request entered the queue to be completed. Used internally.
+          format: date-time
+        createdBy:
+          $ref: '#/components/schemas/IdentityRef'
+        creationDate:
+          type: string
+          description: The date when the pull request was created.
+          format: date-time
+        description:
+          type: string
+          description: The description of the pull request.
+        forkSource:
+          $ref: '#/components/schemas/GitForkRef'
+        hasMultipleMergeBases:
+          type: boolean
+          description: Multiple mergebases warning
+        ignoreTargetRefAndChooseDynamically:
+          type: boolean
+          description: This optional parameter allows clients to use server-side dynamic choices for the target ref. Due to
+            preexisting contracts, users _must_ specify a target ref, but this option will cause the server to ignore it and
+            choose dynamically from the user's favorites (or the default branch).
+        isDraft:
+          type: boolean
+          description: Draft / WIP pull request.
+        labels:
+          type: array
+          description: The labels associated with the pull request.
+          items:
+            $ref: '#/components/schemas/WebApiTagDefinition'
+        lastMergeCommit:
+          $ref: '#/components/schemas/GitCommitRef'
+        lastMergeSourceCommit:
+          $ref: '#/components/schemas/GitCommitRef'
+        lastMergeTargetCommit:
+          $ref: '#/components/schemas/GitCommitRef'
+        mergeFailureMessage:
+          type: string
+          description: If set, pull request merge failed for this reason.
+        mergeFailureType:
+          type: string
+          description: The type of failure (if any) of the pull request merge.
+          enum:
+          - none
+          - unknown
+          - caseSensitive
+          - objectTooLarge
+          x-ms-enum:
+            name: PullRequestMergeFailureType
+            values:
+            - value: none
+              description: Type is not set. Default type.
+            - value: unknown
+              description: Pull request merge failure type unknown.
+            - value: caseSensitive
+              description: Pull request merge failed due to case mismatch.
+            - value: objectTooLarge
+              description: Pull request merge failed due to an object being too large.
+        mergeId:
+          type: string
+          description: The ID of the job used to run the pull request merge. Used internally.
+          format: uuid
+        mergeOptions:
+          $ref: '#/components/schemas/GitPullRequestMergeOptions'
+        mergeStatus:
+          type: string
+          description: The current status of the pull request merge.
+          enum:
+          - notSet
+          - queued
+          - conflicts
+          - succeeded
+          - rejectedByPolicy
+          - failure
+          x-ms-enum:
+            name: PullRequestAsyncStatus
+            values:
+            - value: notSet
+              description: Status is not set. Default state.
+            - value: queued
+              description: Pull request merge is queued.
+            - value: conflicts
+              description: Pull request merge failed due to conflicts.
+            - value: succeeded
+              description: Pull request merge succeeded.
+            - value: rejectedByPolicy
+              description: Pull request merge rejected by policy.
+            - value: failure
+              description: Pull request merge failed.
+        pullRequestId:
+          type: integer
+          description: The ID of the pull request.
+          format: int32
+        remoteUrl:
+          type: string
+          description: Used internally.
+        repository:
+          $ref: '#/components/schemas/GitRepository'
+        reviewers:
+          type: array
+          description: A list of reviewers on the pull request along with the state of their votes.
+          items:
+            $ref: '#/components/schemas/IdentityRefWithVote'
+        sourceRefName:
+          type: string
+          description: The name of the source branch of the pull request.
+        status:
+          type: string
+          description: The status of the pull request.
+          enum:
+          - notSet
+          - active
+          - abandoned
+          - completed
+          - all
+        supportsIterations:
+          type: boolean
+          description: If true, this pull request supports multiple iterations. Iteration support means individual pushes
+            to the source branch of the pull request can be reviewed and comments left in one iteration will be tracked across
+            future iterations.
+        targetRefName:
+          type: string
+          description: The name of the target branch of the pull request.
+        title:
+          type: string
+          description: The title of the pull request.
+        url:
+          type: string
+          description: Used internally.
+        workItemRefs:
+          type: array
+          description: Any work item references associated with this pull request.
+          items:
+            $ref: '#/components/schemas/ResourceRef'
+      description: Represents all the data associated with a pull request.
+    GitPullRequestCompletionOptions:
+      type: object
+      properties:
+        bypassPolicy:
+          type: boolean
+          description: If true, policies will be explicitly bypassed while the pull request is completed.
+        bypassReason:
+          type: string
+          description: If policies are bypassed, this reason is stored as to why bypass was used.
+        deleteSourceBranch:
+          type: boolean
+          description: If true, the source branch of the pull request will be deleted after completion.
+        mergeCommitMessage:
+          type: string
+          description: If set, this will be used as the commit message of the merge commit.
+        mergeStrategy:
+          type: string
+          description: Specify the strategy used to merge the pull request during completion. If MergeStrategy is not set
+            to any value, a no-FF merge will be created if SquashMerge == false. If MergeStrategy is not set to any value,
+            the pull request commits will be squashed if SquashMerge == true. The SquashMerge property is deprecated. It is
+            recommended that you explicitly set MergeStrategy in all cases. If an explicit value is provided for MergeStrategy,
+            the SquashMerge property will be ignored.
+          enum:
+          - noFastForward
+          - squash
+          - rebase
+          - rebaseMerge
+          x-ms-enum:
+            name: GitPullRequestMergeStrategy
+            values:
+            - value: noFastForward
+              description: A two-parent, no-fast-forward merge. The source branch is unchanged. This is the default behavior.
+            - value: squash
+              description: Put all changes from the pull request into a single-parent commit.
+            - value: rebase
+              description: Rebase the source branch on top of the target branch HEAD commit, and fast-forward the target branch.
+                The source branch is updated during the rebase operation.
+            - value: rebaseMerge
+              description: Rebase the source branch on top of the target branch HEAD commit, and create a two-parent, no-fast-forward
+                merge. The source branch is updated during the rebase operation.
+        #squashMerge:
+        #  type: boolean
+        #  description: SquashMerge is deprecated. You should explicitly set the value of MergeStrategy. If MergeStrategy is
+        #    set to any value, the SquashMerge value will be ignored. If MergeStrategy is not set, the merge strategy will
+        #    be no-fast-forward if this flag is false, or squash if true.
+        transitionWorkItems:
+          type: boolean
+          description: If true, we will attempt to transition any work items linked to the pull request into the next logical
+            state (i.e. Active -> Resolved)
+        #triggeredByAutoComplete:
+        #  type: boolean
+        #  description: If true, the current completion attempt was triggered via auto-complete. Used internally.
+      description: Preferences about how the pull request should be completed.
+    GitPullRequestMergeOptions:
+      type: object
+      properties:
+        conflictAuthorshipCommits:
+          type: boolean
+          description: If true, conflict resolutions applied during the merge will be put in separate commits to preserve
+            authorship info for git blame, etc.
+        detectRenameFalsePositives:
+          type: boolean
+          description: If true, renames where there is more than one valid way to map the original file locations to renamed
+            file locations will be treated as false positives and ignored.
+        disableRenames:
+          type: boolean
+          description: If true, rename detection will not be performed during the merge.
+      description: The options which are used when a pull request merge is created.
+    GitPushRef:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        date:
+          type: string
+          format: date-time
+        pushedBy:
+          $ref: '#/components/schemas/IdentityRef'
+        pushId:
+          type: integer
+          format: int32
+        url:
+          type: string
+      description: ''
+    GitRef:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        creator:
+          $ref: '#/components/schemas/IdentityRef'
+        isLocked:
+          type: boolean
+        isLockedBy:
+          $ref: '#/components/schemas/IdentityRef'
+        name:
+          type: string
+        objectId:
+          type: string
+        peeledObjectId:
+          type: string
+        statuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitStatus'
+        url:
+          type: string
+      description: ''
+    GitRepository:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        creationDate:
+          type: string
+          description: The timestamp when the repository was created.
+          format: date-time
+        defaultBranch:
+          type: string
+        id:
+          type: string
+          format: uuid
+        isDisabled:
+          type: boolean
+          description: True if the repository is disabled. False otherwise.
+        isFork:
+          type: boolean
+          description: True if the repository was created as a fork.
+        isInMaintenance:
+          type: boolean
+          description: True if the repository is in maintenance. False otherwise.
+        name:
+          type: string
+        parentRepository:
+          $ref: '#/components/schemas/GitRepositoryRef'
+        project:
+          $ref: '#/components/schemas/TeamProjectReference'
+        remoteUrl:
+          type: string
+        size:
+          type: integer
+          description: Compressed size (bytes) of the repository.
+          format: int64
+        sshUrl:
+          type: string
+        url:
+          type: string
+        validRemoteUrls:
+          type: array
+          items:
+            type: string
+        webUrl:
+          type: string
+      description: ''
+    GitRepositoryRef:
+      type: object
+      properties:
+        collection:
+          $ref: '#/components/schemas/TeamProjectCollectionReference'
+        id:
+          type: string
+          format: uuid
+        isFork:
+          type: boolean
+          description: True if the repository was created as a fork
+        name:
+          type: string
+        project:
+          $ref: '#/components/schemas/TeamProjectReference'
+        remoteUrl:
+          type: string
+        sshUrl:
+          type: string
+        url:
+          type: string
+      description: ''
+    GitStatus:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        context:
+          $ref: '#/components/schemas/GitStatusContext'
+        createdBy:
+          $ref: '#/components/schemas/IdentityRef'
+        creationDate:
+          type: string
+          description: Creation date and time of the status.
+          format: date-time
+        description:
+          type: string
+          description: Status description. Typically describes current state of the status.
+        id:
+          type: integer
+          description: Status identifier.
+          format: int32
+        state:
+          type: string
+          description: State of the status.
+          enum:
+          - notSet
+          - pending
+          - succeeded
+          - failed
+          - error
+          - notApplicable
+          - partiallySucceeded
+          x-ms-enum:
+            name: GitStatusState
+            values:
+            - value: notSet
+              description: Status state not set. Default state.
+            - value: pending
+              description: Status pending.
+            - value: succeeded
+              description: Status succeeded.
+            - value: failed
+              description: Status failed.
+            - value: error
+              description: Status with an error.
+            - value: notApplicable
+              description: Status is not applicable to the target object.
+            - value: partiallySucceeded
+              description: Status Partially Succeeded, build finished with warnings.
+        targetUrl:
+          type: string
+          description: URL with status details.
+        updatedDate:
+          type: string
+          description: Last update date and time of the status.
+          format: date-time
+      description: This class contains the metadata of a service/extension posting a status.
+    GitStatusContext:
+      type: object
+      properties:
+        genre:
+          type: string
+          description: Genre of the status. Typically name of the service/tool generating the status, can be empty.
+        name:
+          type: string
+          description: Name identifier of the status, cannot be null or empty.
+      description: Status context that uniquely identifies the status.
+    GitTemplate:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the Template
+        type:
+          type: string
+          description: Type of the Template
+      description: ''
+    GitUserDate:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Date of the Git operation.
+          format: date-time
+        email:
+          type: string
+          description: Email address of the user performing the Git operation.
+        imageUrl:
+          type: string
+          description: Url for the user's avatar.
+        name:
+          type: string
+          description: Name of the user performing the Git operation.
+      description: User info and date for Git operations.
+    GraphSubjectBase:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReferenceLinks'
+        descriptor:
+          type: string
+          description: The descriptor is the primary way to reference the graph subject while the system is running. This
+            field will uniquely identify the same graph subject across both Accounts and Organizations.
+        displayName:
+          type: string
+          description: This is the non-unique display name of the graph subject. To change this field, you must alter its
+            value in the source provider.
+        url:
+          type: string
+          description: This url is the full route to the source resource of this graph subject.
+      description: ''
+    IdentityRef:
+      properties:
+        directoryAlias:
+          type: string
+          description: Deprecated - Can be retrieved by querying the Graph user referenced in the "self" entry of the IdentityRef
+            "_links" dictionary
+        id:
+          type: string
+        imageUrl:
+          type: string
+          description: Deprecated - Available in the "avatar" entry of the IdentityRef "_links" dictionary
+        inactive:
+          type: boolean
+          description: Deprecated - Can be retrieved by querying the Graph membership state referenced in the "membershipState"
+            entry of the GraphUser "_links" dictionary
+        isAadIdentity:
+          type: boolean
+          description: Deprecated - Can be inferred from the subject type of the descriptor (Descriptor.IsAadUserType/Descriptor.IsAadGroupType)
+        isContainer:
+          type: boolean
+          description: Deprecated - Can be inferred from the subject type of the descriptor (Descriptor.IsGroupType)
+        isDeletedInOrigin:
+          type: boolean
+        profileUrl:
+          type: string
+          description: Deprecated - not in use in most preexisting implementations of ToIdentityRef
+        uniqueName:
+          type: string
+          description: Deprecated - use Domain+PrincipalName instead
+      description: ''
+      allOf:
+      - $ref: '#/components/schemas/GraphSubjectBase'
+    IdentityRefWithVote:
+      properties:
+        hasDeclined:
+          type: boolean
+          description: Indicates if this reviewer has declined to review this pull request.
+        isFlagged:
+          type: boolean
+          description: Indicates if this reviewer is flagged for attention on this pull request.
+        isReapprove:
+          type: boolean
+          description: Indicates if this approve vote should still be handled even though vote didn't change.
+        isRequired:
+          type: boolean
+          description: Indicates if this is a required reviewer for this pull request. <br /> Branches can have policies that
+            require particular reviewers are required for pull requests.
+        reviewerUrl:
+          type: string
+          description: URL to retrieve information about this identity
+        vote:
+          type: integer
+          description: Vote on a pull request:<br /> 10 - approved 5 - approved with suggestions 0 - no vote -5 - waiting
+            for author -10 - rejected
+          format: int16
+      description: Identity information including a vote on a pull request.
+      allOf:
+      - $ref: '#/components/schemas/IdentityRef'
+    ItemContent:
+      type: object
+      properties:
+        content:
+          type: string
+        contentType:
+          type: string
+          enum:
+          - rawText
+          - base64Encoded
+      description: ''
+    ReferenceLinks:
+      type: object
+      properties:
+        links:
+          type: object
+          additionalProperties: true
+          description: The readonly view of the links.  Because Reference links are readonly, we only want to expose them
+            as read only.
+      description: The class to represent a collection of REST reference links.
+    ResourceRef:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+      description: ''
+    TeamProjectCollectionReference:
+      type: object
+      properties:
+        avatarUrl:
+          type: string
+          description: Collection avatar Url.
+        id:
+          type: string
+          description: Collection Id.
+          format: uuid
+        name:
+          type: string
+          description: Collection Name.
+        url:
+          type: string
+          description: Collection REST Url.
+      description: Reference object for a TeamProjectCollection.
+    TeamProjectReference:
+      type: object
+      properties:
+        abbreviation:
+          type: string
+          description: Project abbreviation.
+        defaultTeamImageUrl:
+          type: string
+          description: Url to default team identity image.
+        description:
+          type: string
+          description: The project's description (if any).
+        id:
+          type: string
+          description: Project identifier.
+          format: uuid
+        lastUpdateTime:
+          type: string
+          description: Project last update time.
+          format: date-time
+        name:
+          type: string
+          description: Project name.
+        revision:
+          type: integer
+          description: Project revision.
+          format: int64
+        state:
+          type: string
+          description: Project state.
+          enum:
+          - deleting
+          - new
+          - wellFormed
+          - createPending
+          - all
+          - unchanged
+          - deleted
+          x-ms-enum:
+            name: ProjectState
+            values:
+            - value: deleting
+              description: Project is in the process of being deleted.
+            - value: new
+              description: Project is in the process of being created.
+            - value: wellFormed
+              description: Project is completely created and ready to use.
+            - value: createPending
+              description: Project has been queued for creation, but the process has not yet started.
+            - value: all
+              description: All projects regardless of state except Deleted.
+            - value: unchanged
+              description: Project has not been changed.
+            - value: deleted
+              description: Project has been deleted.
+        url:
+          type: string
+          description: Url to the full version of the object.
+        visibility:
+          type: string
+          description: Project visibility.
+          enum:
+          - private
+          - public
+          x-ms-enum:
+            name: ProjectVisibility
+            values:
+            - value: private
+              description: The project is only visible to users with explicit access.
+            - value: public
+              description: The project is visible to all.
+      description: Represents a shallow reference to a TeamProject.
+    WebApiTagDefinition:
+      type: object
+      properties:
+        active:
+          type: boolean
+          description: Whether or not the tag definition is active.
+        id:
+          type: string
+          description: ID of the tag definition.
+          format: uuid
+        name:
+          type: string
+          description: The name of the tag definition.
+        url:
+          type: string
+          description: Resource URL for the Tag Definition.
+      description: The representation of a tag definition which is sent across the wire.
+    CreatePullRequestReq:
+      type: object
+      properties:
+        completionOptions:
+          $ref: '#/components/schemas/GitPullRequestCompletionOptions'
+        description:
+          type: string
+          description: The description of the pull request.
+        isDraft:
+          type: boolean
+          description: Draft / WIP pull request.
+        mergeOptions:
+          $ref: '#/components/schemas/GitPullRequestMergeOptions'
+        sourceRefName:
+          type: string
+          description: The name of the source branch of the pull request.
+        status:
+          type: string
+          description: The status of the pull request.
+          enum:
+          - notSet
+          - active
+          - abandoned
+          - completed
+          - all
+        supportsIterations:
+          type: boolean
+          description: If true, this pull request supports multiple iterations. Iteration support means individual pushes
+            to the source branch of the pull request can be reviewed and comments left in one iteration will be tracked across
+            future iterations.
+        targetRefName:
+          type: string
+          description: The name of the target branch of the pull request.
+        title:
+          type: string
+          description: The title of the pull request.
+      description: Represents the data needed to create a pull request.
+    UpdatePullRequestReq:
+      type: object
+      properties:
+        completionOptions:
+          $ref: '#/components/schemas/GitPullRequestCompletionOptions'
+        description:
+          type: string
+          description: The description of the pull request.
+        mergeOptions:
+          $ref: '#/components/schemas/GitPullRequestMergeOptions'
+        status:
+          type: string
+          description: The status of the pull request.
+          enum:
+          - notSet
+          - active
+          - abandoned
+          - completed
+          - all
+        #targetRefName:
+        #  type: string
+        #  description: The name of the target branch of the pull request.
+        title:
+          type: string
+          description: The title of the pull request.
+      description: Represents the data needed to create a pull request.
+  parameters:
+    api-Version-preview.1:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.1' to use this version of the api.
+      required: true
+      schema:
+        type: string
+    api-Version-preview.2:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.2' to use this version of the api.
+      required: true
+      schema:
+        type: string
+    api-Version-preview.3:
+      name: api-version
+      in: query
+      description: Version of the API to use.  This should be set to '7.2-preview.3' to use this version of the api.
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    accessToken:
+      type: http
+      description: Personal access token. Use any value for the user name and the token as the password.
+      scheme: basic
