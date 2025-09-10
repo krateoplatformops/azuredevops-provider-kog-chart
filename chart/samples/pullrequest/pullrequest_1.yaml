@@ -7,27 +7,27 @@ metadata:
   annotations:
     krateo.io/connector-verbose: "true"
 spec:
-  configurationRef:
-    name: sample-pullrequest-config
-    namespace: default
-  organization: krateo-kog
-  project: project-1-classic
-  repositoryId: 5605b0ba-e2fa-4aab-af0b-0888321b3a08
-  title: "Test PR from Krateo"
-  description: "Test PR description from Krateo"
-  sourceRefName: "refs/heads/branch-8"
-  targetRefName: "refs/heads/main"
-  isDraft: false
-  supportsIterations: true
-  status: abandoned
   completionOptions:
     #bypassPolicy: false
     #bypassReason: ""
     deleteSourceBranch: false
-    mergeStrategy: squash
     mergeCommitMessage: "Squash merge for feature X, test from Krateo"
+    mergeStrategy: squash
     #transitionWorkItems: true
+  configurationRef:
+    name: sample-pullrequest-config
+    namespace: default
+  description: "Test PR description from Krateo"
+  isDraft: false
   mergeOptions:
     conflictAuthorshipCommits: true
     detectRenameFalsePositives: false
     disableRenames: false
+  organization: krateo-kog
+  project: project-1-classic
+  repositoryId: 5605b0ba-e2fa-4aab-af0b-0888321b3a08
+  sourceRefName: "refs/heads/branch-9"
+  status: abandoned
+  supportsIterations: true
+  targetRefName: "refs/heads/main"
+  title: "Test PR from Krateo"
