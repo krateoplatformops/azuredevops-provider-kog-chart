@@ -37,7 +37,7 @@ spec:
       path: /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests
     - action: update
       method: PATCH
-      path: /{organization}/{project}/_apis/git/repositories/{repositoryId}/pullrequests/{pullRequestId}
+      path: /api/{organization}/{project}/git/repositories/{repositoryId}/pullrequests/{pullRequestId} # Plugin endpoint
     configurationFields:
     # Common
     - fromOpenAPI:
@@ -45,31 +45,6 @@ spec:
         in: query
       fromRestDefinition:
         actions: ["*"]
-    # FindBy
-    #- fromOpenAPI:
-    #    name: searchCriteria.sourceRefName
-    #    in: query
-    #  fromRestDefinition:
-    #    actions: 
-    #      - findby
-    #- fromOpenAPI:
-    #    name: searchCriteria.targetRefName
-    #    in: query
-    #  fromRestDefinition:
-    #    actions: 
-    #      - findby
-    #- fromOpenAPI:
-    #    name: searchCriteria.title
-    #    in: query
-    #  fromRestDefinition:
-    #    actions: 
-    #      - findby
-    #- fromOpenAPI:
-    #    name: searchCriteria.status
-    #    in: query
-    #  fromRestDefinition:
-    #    actions: 
-    #      - findby
     # Get
     - fromOpenAPI:
         name: includeCommits
@@ -83,11 +58,4 @@ spec:
       fromRestDefinition:
         actions: 
           - get
-    # Create
-    #- fromOpenAPI:
-    #    name: supportsIterations
-    #    in: query
-    #  fromRestDefinition:
-    #    actions: 
-    #      - create
 {{ end }}
