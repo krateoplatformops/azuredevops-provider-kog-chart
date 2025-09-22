@@ -25,6 +25,8 @@ spec:
     - status
     - targetRefName
     - url
+    excludedSpecFields:
+    - pullRequestId
     verbsDescription:
     - action: findby
       method: GET
@@ -39,7 +41,7 @@ spec:
       method: PATCH
       path: /api/{organization}/{project}/git/repositories/{repositoryId}/pullrequests/{pullRequestId} # Plugin endpoint
     configurationFields:
-    # Common
+    # Common among all actions
     - fromOpenAPI:
         name: api-version
         in: query

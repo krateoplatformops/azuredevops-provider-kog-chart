@@ -1,0 +1,167 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: pipelinepermissions.azuredevops.ogen.krateo.io
+spec:
+  conversion:
+    strategy: None
+  group: azuredevops.ogen.krateo.io
+  names:
+    categories:
+    - pipelinepermission
+    - restresources
+    - rr
+    kind: PipelinePermission
+    listKind: PipelinePermissionList
+    plural: pipelinepermissions
+    singular: pipelinepermission
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          spec:
+            properties:
+              allPipelines:
+                properties:
+                  authorized:
+                    type: boolean
+                type: object
+              configurationRef:
+                description: A reference to the Configuration CR that holds all the
+                  needed configuration for this resource. OASGen Provider added this
+                  field automatically.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace of the referenced Configuration CR. If
+                      not provided, the same namespace will be used.
+                    type: string
+                required:
+                - name
+                type: object
+              organization:
+                description: 'PARAMETER: path - The name of the Azure DevOps organization.'
+                type: string
+              pipelines:
+                items:
+                  properties:
+                    authorized:
+                      default: true
+                      enum:
+                      - true
+                      type: boolean
+                    id:
+                      description: ' (format: int32)'
+                      type: integer
+                  type: object
+                type: array
+              project:
+                description: 'PARAMETER: path - Project ID or project name'
+                type: string
+              resourceId:
+                description: 'PARAMETER: path'
+                type: string
+              resourceType:
+                description: 'PARAMETER: path'
+                enum:
+                - repository
+                - environment
+                - queue
+                - teamproject
+                - endpoint
+                - variablegroup
+                - securefile
+                type: string
+            required:
+            - configurationRef
+            - organization
+            - project
+            - resourceId
+            - resourceType
+            type: object
+          status:
+            properties:
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              failedObjectRef:
+                properties:
+                  apiVersion:
+                    description: API version of the object.
+                    type: string
+                  kind:
+                    description: Kind of the object.
+                    type: string
+                  name:
+                    description: Name of the object.
+                    type: string
+                  namespace:
+                    description: Namespace of the object.
+                    type: string
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

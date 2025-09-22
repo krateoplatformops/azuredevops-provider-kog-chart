@@ -24,5 +24,6 @@ spec:
         api-version: "7.2-preview.2"
         includeCommits: true
         includeWorkItemRefs: true
+        not_working: test
       update:
         api-version: "7.2-preview.2"

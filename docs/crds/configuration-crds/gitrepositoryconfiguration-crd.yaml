@@ -1,0 +1,123 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: gitrepositoryconfigurations.azuredevops.ogen.krateo.io
+spec:
+  conversion:
+    strategy: None
+  group: azuredevops.ogen.krateo.io
+  names:
+    categories:
+    - gitrepository
+    - restconfigs
+    - rc
+    kind: GitRepositoryConfiguration
+    listKind: GitRepositoryConfigurationList
+    plural: gitrepositoryconfigurations
+    singular: gitrepositoryconfiguration
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          spec:
+            properties:
+              authentication:
+                description: The authentication methods available for this API.
+                properties:
+                  basic:
+                    properties:
+                      passwordRef:
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
+                      usernameRef:
+                        properties:
+                          key:
+                            type: string
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        required:
+                        - key
+                        - name
+                        - namespace
+                        type: object
+                    required:
+                    - passwordRef
+                    - usernameRef
+                    type: object
+                type: object
+              configuration:
+                properties:
+                  query:
+                    properties:
+                      create:
+                        properties:
+                          api-version:
+                            type: string
+                        required:
+                        - api-version
+                        type: object
+                      delete:
+                        properties:
+                          api-version:
+                            type: string
+                        required:
+                        - api-version
+                        type: object
+                      findby:
+                        properties:
+                          api-version:
+                            type: string
+                        required:
+                        - api-version
+                        type: object
+                      get:
+                        properties:
+                          api-version:
+                            type: string
+                        required:
+                        - api-version
+                        type: object
+                      update:
+                        properties:
+                          api-version:
+                            type: string
+                        required:
+                        - api-version
+                        type: object
+                    type: object
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true

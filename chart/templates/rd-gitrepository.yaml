@@ -16,6 +16,8 @@ spec:
     - sshUrl
     - url
     - defaultBranch
+    excludedSpecFields:
+    - id
     verbsDescription:
     - action: create
       method: POST

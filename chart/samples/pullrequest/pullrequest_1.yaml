@@ -8,6 +8,7 @@ metadata:
     krateo.io/connector-verbose: "true"
 spec:
   completionOptions:
+    #autoCompleteIgnoreConfigIds: []
     #bypassPolicy: false
     #bypassReason: ""
     deleteSourceBranch: false
