@@ -1,0 +1,48 @@
+{{- if .Values.restdefinitions.policyconfiguration.enabled }}
+kind: RestDefinition
+apiVersion: ogen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-policyconfiguration
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-policyconfiguration/policyconfiguration.yaml
+  resourceGroup: azuredevops.ogen.krateo.io
+  resource:
+    kind: PolicyConfiguration
+    #identifiers:
+    #- settings
+    additionalStatusFields:
+    - id
+    excludedSpecFields:
+    - id
+    verbsDescription:
+    - action: findby
+      method: GET
+      path: /{organization}/{project}/_apis/policy/configurations
+    - action: get
+      method: GET
+      path: /{organization}/{project}/_apis/policy/configurations/{id}
+    - action: create
+      method: POST
+      path: /{organization}/{project}/_apis/policy/configurations
+    - action: update
+      method: PUT
+      path: /{organization}/{project}/_apis/policy/configurations/{id}
+    - action: delete
+      method: DELETE
+      path: /{organization}/{project}/_apis/policy/configurations/{id}
+    configurationFields:
+    # Common among all actions
+    - fromOpenAPI:
+        name: api-version
+        in: query
+      fromRestDefinition:
+        actions: ["*"]
+    # FindBy
+    - fromOpenAPI:
+        name: $top
+        in: query
+      fromRestDefinition:
+        actions:
+          - findby
+{{ end }}
+

@@ -5,10 +5,11 @@ Note that the changes are made to comply with some requirements of the Krateo Re
 
 ## Summary
 
-- [Summary](#summary)
 - [GitRepository](#gitrepository)
 - [Pipeline](#pipeline)
 - [PipelinePermission](#pipelinepermission)
+- [PullRequest](#pullrequest)
+- [Policy](#policy)
 
 ## `GitRepository`
 
@@ -81,3 +82,32 @@ An `enum` has been added to the `resourceType` field for both the GET and PATCH 
 +       - variablegroup
 +       - securefile
 ```
+
+## `PullRequest`
+
+Version: 7.2-preview.2
+
+- Commented out some properties from the `GitPullRequest` schema (used for response bodies) that were deemed not important and caused issues with the oasgen-provider (e.g., circular dependencies).
+- Commented out some query parameters or fields in bodies that were deemed not important or that caused issues with the oasgen-provider.
+- The response status code for the create pull request endpoint was updated from `200` to `201 Created` to reflect the actual behavior of the API, as the original OAS incorrectly specified `200`.
+- Created new schemas for request bodies (`CreatePullRequestReq` and `UpdatePullRequestReq`), to ensure that only the relevant fields are included when creating or updating a pull request.
+
+
+## `Policy`
+
+TO BE COMPLETED
+
+created:
+- PolicyReq
+
+- PolicyConfigurationSettings
+
+- PolicyScope
+
+thanks to
+https://github.com/MicrosoftDocs/vsts-rest-api-specs/tree/master/specification/policy/7.2/httpExamples
+
+
+changed:
+configurationId to id
+to conform with the response bodies

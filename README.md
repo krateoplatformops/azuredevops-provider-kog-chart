@@ -46,6 +46,9 @@ graph TD
 
     APC -- Direct calls --> ADO_API
 
+    APC_KOG -- Uses --> KOG
+
+
     KOG -- Instanciates --> RDC1
     KOG -- Instanciates --> RDC2
     KOG -- Instanciates --> RDC3
@@ -68,7 +71,8 @@ graph TD
 
     subgraph Krateo Ecosystem
         APC[azuredevops-provider <br> 'classic']
-        KOG[azuredevops-provider-kog]
+        APC_KOG[azuredevops-provider-kog]
+        KOG[oasgen-provider]
         RDC1[rest-dynamic-controller-1 <br> Pipeline]
         RDC2[rest-dynamic-controller-2 <br> PipelinePermission]
         RDC3[rest-dynamic-controller-3 <br> GitRepository]

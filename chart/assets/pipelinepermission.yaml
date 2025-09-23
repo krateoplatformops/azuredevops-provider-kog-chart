@@ -93,7 +93,6 @@ paths:
         required: true
         schema:
           type: string
-        default: testingDefault
       - name: project
         in: path
         description: Project ID or project name

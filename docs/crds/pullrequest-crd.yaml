@@ -1,0 +1,527 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: pullrequests.azuredevops.ogen.krateo.io
+spec:
+  conversion:
+    strategy: None
+  group: azuredevops.ogen.krateo.io
+  names:
+    categories:
+    - pullrequest
+    - restresources
+    - rr
+    kind: PullRequest
+    listKind: PullRequestList
+    plural: pullrequests
+    singular: pullrequest
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Represents the data needed to create a pull request.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          spec:
+            properties:
+              completionOptions:
+                description: Preferences about how the pull request should be completed.
+                properties:
+                  autoCompleteIgnoreConfigIds:
+                    description: List of any policy configuration Id's which auto-complete
+                      should not wait for. Only applies to optional policies (isBlocking
+                      == false). Auto-complete always waits for required policies
+                      (isBlocking == true).
+                    items:
+                      type: integer
+                    type: array
+                  bypassPolicy:
+                    description: If true, policies will be explicitly bypassed while
+                      the pull request is completed.
+                    type: boolean
+                  bypassReason:
+                    description: If policies are bypassed, this reason is stored as
+                      to why bypass was used.
+                    type: string
+                  deleteSourceBranch:
+                    description: If true, the source branch of the pull request will
+                      be deleted after completion.
+                    type: boolean
+                  mergeCommitMessage:
+                    description: If set, this will be used as the commit message of
+                      the merge commit.
+                    type: string
+                  mergeStrategy:
+                    description: Specify the strategy used to merge the pull request
+                      during completion. If MergeStrategy is not set to any value,
+                      a no-FF merge will be created if SquashMerge == false. If MergeStrategy
+                      is not set to any value, the pull request commits will be squashed
+                      if SquashMerge == true. The SquashMerge property is deprecated.
+                      It is recommended that you explicitly set MergeStrategy in all
+                      cases. If an explicit value is provided for MergeStrategy, the
+                      SquashMerge property will be ignored.
+                    enum:
+                    - noFastForward
+                    - squash
+                    - rebase
+                    - rebaseMerge
+                    type: string
+                  squashMerge:
+                    description: SquashMerge is deprecated. You should explicitly
+                      set the value of MergeStrategy. If MergeStrategy is set to any
+                      value, the SquashMerge value will be ignored. If MergeStrategy
+                      is not set, the merge strategy will be no-fast-forward if this
+                      flag is false, or squash if true.
+                    type: boolean
+                  transitionWorkItems:
+                    description: If true, we will attempt to transition any work items
+                      linked to the pull request into the next logical state (i.e.
+                      Active -> Resolved)
+                    type: boolean
+                type: object
+              configurationRef:
+                description: A reference to the Configuration CR that holds all the
+                  needed configuration for this resource. OASGen Provider added this
+                  field automatically.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace of the referenced Configuration CR. If
+                      not provided, the same namespace will be used.
+                    type: string
+                required:
+                - name
+                type: object
+              description:
+                description: The description of the pull request.
+                type: string
+              isDraft:
+                description: Draft / WIP pull request.
+                type: boolean
+              mergeOptions:
+                description: The options which are used when a pull request merge
+                  is created.
+                properties:
+                  conflictAuthorshipCommits:
+                    description: If true, conflict resolutions applied during the
+                      merge will be put in separate commits to preserve authorship
+                      info for git blame, etc.
+                    type: boolean
+                  detectRenameFalsePositives:
+                    description: If true, renames where there is more than one valid
+                      way to map the original file locations to renamed file locations
+                      will be treated as false positives and ignored.
+                    type: boolean
+                  disableRenames:
+                    description: If true, rename detection will not be performed during
+                      the merge.
+                    type: boolean
+                type: object
+              organization:
+                description: 'PARAMETER: path - Organization name'
+                type: string
+              project:
+                description: 'PARAMETER: path - Project name or ID'
+                type: string
+              repositoryId:
+                description: 'PARAMETER: path - Repository ID'
+                type: string
+              sourceRefName:
+                description: The name of the source branch of the pull request.
+                type: string
+              status:
+                description: The status of the pull request.
+                enum:
+                - notSet
+                - active
+                - abandoned
+                - completed
+                - all
+                type: string
+              supportsIterations:
+                description: If true, this pull request supports multiple iterations.
+                  Iteration support means individual pushes to the source branch of
+                  the pull request can be reviewed and comments left in one iteration
+                  will be tracked across future iterations.
+                type: boolean
+              targetRefName:
+                description: The name of the target branch of the pull request.
+                type: string
+              title:
+                description: The title of the pull request.
+                type: string
+            required:
+            - configurationRef
+            - organization
+            - project
+            - repositoryId
+            type: object
+          status:
+            properties:
+              closedBy:
+                properties:
+                  _links:
+                    description: The class to represent a collection of REST reference
+                      links.
+                    properties:
+                      links:
+                        description: The readonly view of the links.  Because Reference
+                          links are readonly, we only want to expose them as read
+                          only.
+                        type: object
+                    type: object
+                  descriptor:
+                    description: The descriptor is the primary way to reference the
+                      graph subject while the system is running. This field will uniquely
+                      identify the same graph subject across both Accounts and Organizations.
+                    type: string
+                  directoryAlias:
+                    description: Deprecated - Can be retrieved by querying the Graph
+                      user referenced in the "self" entry of the IdentityRef "_links"
+                      dictionary
+                    type: string
+                  displayName:
+                    description: This is the non-unique display name of the graph
+                      subject. To change this field, you must alter its value in the
+                      source provider.
+                    type: string
+                  id:
+                    type: string
+                  imageUrl:
+                    description: Deprecated - Available in the "avatar" entry of the
+                      IdentityRef "_links" dictionary
+                    type: string
+                  inactive:
+                    description: Deprecated - Can be retrieved by querying the Graph
+                      membership state referenced in the "membershipState" entry of
+                      the GraphUser "_links" dictionary
+                    type: boolean
+                  isAadIdentity:
+                    description: Deprecated - Can be inferred from the subject type
+                      of the descriptor (Descriptor.IsAadUserType/Descriptor.IsAadGroupType)
+                    type: boolean
+                  isContainer:
+                    description: Deprecated - Can be inferred from the subject type
+                      of the descriptor (Descriptor.IsGroupType)
+                    type: boolean
+                  isDeletedInOrigin:
+                    type: boolean
+                  profileUrl:
+                    description: Deprecated - not in use in most preexisting implementations
+                      of ToIdentityRef
+                    type: string
+                  uniqueName:
+                    description: Deprecated - use Domain+PrincipalName instead
+                    type: string
+                  url:
+                    description: This url is the full route to the source resource
+                      of this graph subject.
+                    type: string
+                type: object
+              closedDate:
+                description: 'The date when the pull request was closed (completed,
+                  abandoned, or merged externally). (format: date-time)'
+                type: string
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              createdBy:
+                properties:
+                  _links:
+                    description: The class to represent a collection of REST reference
+                      links.
+                    properties:
+                      links:
+                        description: The readonly view of the links.  Because Reference
+                          links are readonly, we only want to expose them as read
+                          only.
+                        type: object
+                    type: object
+                  descriptor:
+                    description: The descriptor is the primary way to reference the
+                      graph subject while the system is running. This field will uniquely
+                      identify the same graph subject across both Accounts and Organizations.
+                    type: string
+                  directoryAlias:
+                    description: Deprecated - Can be retrieved by querying the Graph
+                      user referenced in the "self" entry of the IdentityRef "_links"
+                      dictionary
+                    type: string
+                  displayName:
+                    description: This is the non-unique display name of the graph
+                      subject. To change this field, you must alter its value in the
+                      source provider.
+                    type: string
+                  id:
+                    type: string
+                  imageUrl:
+                    description: Deprecated - Available in the "avatar" entry of the
+                      IdentityRef "_links" dictionary
+                    type: string
+                  inactive:
+                    description: Deprecated - Can be retrieved by querying the Graph
+                      membership state referenced in the "membershipState" entry of
+                      the GraphUser "_links" dictionary
+                    type: boolean
+                  isAadIdentity:
+                    description: Deprecated - Can be inferred from the subject type
+                      of the descriptor (Descriptor.IsAadUserType/Descriptor.IsAadGroupType)
+                    type: boolean
+                  isContainer:
+                    description: Deprecated - Can be inferred from the subject type
+                      of the descriptor (Descriptor.IsGroupType)
+                    type: boolean
+                  isDeletedInOrigin:
+                    type: boolean
+                  profileUrl:
+                    description: Deprecated - not in use in most preexisting implementations
+                      of ToIdentityRef
+                    type: string
+                  uniqueName:
+                    description: Deprecated - use Domain+PrincipalName instead
+                    type: string
+                  url:
+                    description: This url is the full route to the source resource
+                      of this graph subject.
+                    type: string
+                type: object
+              creationDate:
+                description: 'The date when the pull request was created. (format:
+                  date-time)'
+                type: string
+              failedObjectRef:
+                properties:
+                  apiVersion:
+                    description: API version of the object.
+                    type: string
+                  kind:
+                    description: Kind of the object.
+                    type: string
+                  name:
+                    description: Name of the object.
+                    type: string
+                  namespace:
+                    description: Namespace of the object.
+                    type: string
+                type: object
+              isDraft:
+                description: Draft / WIP pull request.
+                type: boolean
+              labels:
+                description: The labels associated with the pull request.
+                items:
+                  properties:
+                    active:
+                      description: Whether or not the tag definition is active.
+                      type: boolean
+                    id:
+                      description: 'ID of the tag definition. (format: uuid)'
+                      type: string
+                    name:
+                      description: The name of the tag definition.
+                      type: string
+                    url:
+                      description: Resource URL for the Tag Definition.
+                      type: string
+                  type: object
+                type: array
+              mergeStatus:
+                description: The current status of the pull request merge.
+                enum:
+                - notSet
+                - queued
+                - conflicts
+                - succeeded
+                - rejectedByPolicy
+                - failure
+                type: string
+              pullRequestId:
+                description: 'The ID of the pull request. (format: int32)'
+                type: integer
+              remoteUrl:
+                description: Used internally.
+                type: string
+              reviewers:
+                description: A list of reviewers on the pull request along with the
+                  state of their votes.
+                items:
+                  properties:
+                    _links:
+                      description: The class to represent a collection of REST reference
+                        links.
+                      properties:
+                        links:
+                          description: The readonly view of the links.  Because Reference
+                            links are readonly, we only want to expose them as read
+                            only.
+                          type: object
+                      type: object
+                    descriptor:
+                      description: The descriptor is the primary way to reference
+                        the graph subject while the system is running. This field
+                        will uniquely identify the same graph subject across both
+                        Accounts and Organizations.
+                      type: string
+                    directoryAlias:
+                      description: Deprecated - Can be retrieved by querying the Graph
+                        user referenced in the "self" entry of the IdentityRef "_links"
+                        dictionary
+                      type: string
+                    displayName:
+                      description: This is the non-unique display name of the graph
+                        subject. To change this field, you must alter its value in
+                        the source provider.
+                      type: string
+                    hasDeclined:
+                      description: Indicates if this reviewer has declined to review
+                        this pull request.
+                      type: boolean
+                    id:
+                      type: string
+                    imageUrl:
+                      description: Deprecated - Available in the "avatar" entry of
+                        the IdentityRef "_links" dictionary
+                      type: string
+                    inactive:
+                      description: Deprecated - Can be retrieved by querying the Graph
+                        membership state referenced in the "membershipState" entry
+                        of the GraphUser "_links" dictionary
+                      type: boolean
+                    isAadIdentity:
+                      description: Deprecated - Can be inferred from the subject type
+                        of the descriptor (Descriptor.IsAadUserType/Descriptor.IsAadGroupType)
+                      type: boolean
+                    isContainer:
+                      description: Deprecated - Can be inferred from the subject type
+                        of the descriptor (Descriptor.IsGroupType)
+                      type: boolean
+                    isDeletedInOrigin:
+                      type: boolean
+                    isFlagged:
+                      description: Indicates if this reviewer is flagged for attention
+                        on this pull request.
+                      type: boolean
+                    isReapprove:
+                      description: Indicates if this approve vote should still be
+                        handled even though vote didn't change.
+                      type: boolean
+                    isRequired:
+                      description: Indicates if this is a required reviewer for this
+                        pull request. <br /> Branches can have policies that require
+                        particular reviewers are required for pull requests.
+                      type: boolean
+                    profileUrl:
+                      description: Deprecated - not in use in most preexisting implementations
+                        of ToIdentityRef
+                      type: string
+                    reviewerUrl:
+                      description: URL to retrieve information about this identity
+                      type: string
+                    uniqueName:
+                      description: Deprecated - use Domain+PrincipalName instead
+                      type: string
+                    url:
+                      description: This url is the full route to the source resource
+                        of this graph subject.
+                      type: string
+                    vote:
+                      description: 'Vote on a pull request:<br /> 10 - approved 5
+                        - approved with suggestions 0 - no vote -5 - waiting for author
+                        -10 - rejected (format: int16)'
+                      type: integer
+                    votedFor:
+                      description: Groups or teams that this reviewer contributed
+                        to. <br /> Groups and teams can be reviewers on pull requests
+                        but can not vote directly.  When a member of the group or
+                        team votes, that vote is rolled up into the group or team
+                        vote.  VotedFor is a list of such votes.
+                      items:
+                        type: object
+                      type: array
+                  type: object
+                type: array
+              sourceRefName:
+                description: The name of the source branch of the pull request.
+                type: string
+              status:
+                description: The status of the pull request.
+                enum:
+                - notSet
+                - active
+                - abandoned
+                - completed
+                - all
+                type: string
+              targetRefName:
+                description: The name of the target branch of the pull request.
+                type: string
+              title:
+                description: The title of the pull request.
+                type: string
+              url:
+                description: Used internally.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
