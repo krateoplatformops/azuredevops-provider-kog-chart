@@ -131,3 +131,5 @@ restdefinitions:
     enabled: true
   pullrequest:
     enabled: true
+  policyconfiguration:
+    enabled: true
